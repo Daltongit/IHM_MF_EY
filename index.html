@@ -3,278 +3,111 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Orbital Flow UI</title>
+  <title>Lumen Reserve</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Syncopate:wght@700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Clash+Display:wght@600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./css/style.css" />
-  <script defer src="./js/app.js"></script>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script type="module" src="./js/app.js"></script>
 </head>
 <body>
   <a class="skip-link" href="#mainContent">Saltar al contenido</a>
 
-  <div class="page-shell">
+  <div class="ambient ambient-a"></div>
+  <div class="ambient ambient-b"></div>
+  <div class="grid-fx"></div>
+
+  <div class="app-shell">
     <header class="topbar">
       <div class="brand-block">
-        <span class="brand-kicker">Prototipo interactivo</span>
-        <h1>Orbital Flow</h1>
-        <p>Interfaz experimental con navegación esférica, animaciones cinemáticas y flujo visual más intuitivo.</p>
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 72 72">
+            <rect x="10" y="10" width="52" height="52" rx="18" fill="none" stroke="currentColor" stroke-width="3"></rect>
+            <path d="M20 42h10l5 8 16-24" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+          </svg>
+        </div>
+
+        <div>
+          <p class="eyebrow">Prototipo interactivo</p>
+          <h1>Lumen Reserve</h1>
+          <p class="brand-copy">Sistema inteligente de reservas de espacios con recomendación automática y navegación clara.</p>
+        </div>
       </div>
 
-      <div class="topbar-actions">
+      <div class="top-actions">
         <button id="themeToggle" class="ghost-btn" type="button" aria-label="Cambiar tema">Tema</button>
-        <button id="orbToggle" class="primary-btn mobile-orb-toggle" type="button" aria-label="Abrir menú orbital">
-          Menú orbital
-        </button>
       </div>
     </header>
 
-    <main id="mainContent" class="layout">
-      <section class="orbital-zone">
-        <div id="orbitalSystem" class="orbital-system" aria-label="Navegación principal interactiva">
-          <div class="orbital-grid"></div>
-          <div class="orbital-halo orbital-halo-a"></div>
-          <div class="orbital-halo orbital-halo-b"></div>
+    <nav class="command-nav" aria-label="Navegación principal">
+      <button class="command-pill is-active" type="button" data-view="home">
+        <span class="command-pill__icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M4 12.5 12 5l8 7.5v6.5H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+            <path d="M9.5 19v-4.5h5V19" fill="none" stroke="currentColor" stroke-width="1.8"></path>
+          </svg>
+        </span>
+        <span class="command-pill__text">
+          <strong>Inicio</strong>
+          <small>Resumen vivo</small>
+        </span>
+      </button>
 
-          <button
-            id="coreOrb"
-            class="core-orb"
-            type="button"
-            aria-expanded="false"
-            aria-controls="orbNodes"
-            aria-label="Abrir navegación orbital"
-          >
-            <span class="core-orb__pulse"></span>
-            <span class="core-orb__ring core-orb__ring--one"></span>
-            <span class="core-orb__ring core-orb__ring--two"></span>
-            <span class="core-orb__center">
-              <span class="core-orb__eyebrow">Core</span>
-              <strong>Open</strong>
-            </span>
-          </button>
+      <button class="command-pill" type="button" data-view="spaces">
+        <span class="command-pill__icon">
+          <svg viewBox="0 0 24 24">
+            <rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+            <rect x="13" y="4" width="7" height="16" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+            <rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+          </svg>
+        </span>
+        <span class="command-pill__text">
+          <strong>Espacios</strong>
+          <small>Explorar y filtrar</small>
+        </span>
+      </button>
 
-          <div id="orbNodes" class="orb-nodes" aria-hidden="true">
-            <button class="orb-node orb-node--dash is-active" type="button" data-view="dashboard" style="--x: 0px; --y: -210px;">
-              <span class="orb-node__icon">
-                <svg viewBox="0 0 24 24">
-                  <path d="M4 12.5 12 5l8 7.5v6.5H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
-                  <path d="M9.5 19v-4.5h5V19" fill="none" stroke="currentColor" stroke-width="1.8"></path>
-                </svg>
-              </span>
-              <span class="orb-node__label">Dashboard</span>
-            </button>
+      <button class="command-pill" type="button" data-view="reserve">
+        <span class="command-pill__icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M5 18.5 17.5 6a2.1 2.1 0 1 1 3 3L8 21.5H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+            <path d="M14.5 9 19 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+          </svg>
+        </span>
+        <span class="command-pill__text">
+          <strong>Reservar</strong>
+          <small>Formulario + inferencia</small>
+        </span>
+      </button>
 
-            <button class="orb-node orb-node--board" type="button" data-view="board" style="--x: 182px; --y: -98px;">
-              <span class="orb-node__icon">
-                <svg viewBox="0 0 24 24">
-                  <rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
-                  <rect x="13" y="4" width="7" height="16" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
-                  <rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
-                </svg>
-              </span>
-              <span class="orb-node__label">Board</span>
-            </button>
+      <button class="command-pill" type="button" data-view="bookings">
+        <span class="command-pill__icon">
+          <svg viewBox="0 0 24 24">
+            <path d="M7 3v3M17 3v3M4 9h16M6 6h12a2 2 0 0 1 2 2v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+          </svg>
+        </span>
+        <span class="command-pill__text">
+          <strong>Mis reservas</strong>
+          <small>Control y cancelación</small>
+        </span>
+      </button>
+    </nav>
 
-            <button class="orb-node orb-node--studio" type="button" data-view="studio" style="--x: 182px; --y: 98px;">
-              <span class="orb-node__icon">
-                <svg viewBox="0 0 24 24">
-                  <path d="M5 18.5 17.5 6a2.1 2.1 0 1 1 3 3L8 21.5H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
-                  <path d="M14.5 9 19 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                </svg>
-              </span>
-              <span class="orb-node__label">Studio</span>
-            </button>
-
-            <button class="orb-node orb-node--feedback" type="button" data-view="feedback" style="--x: 0px; --y: 210px;">
-              <span class="orb-node__icon">
-                <svg viewBox="0 0 24 24">
-                  <path d="M4 6.5A2.5 2.5 0 0 1 6.5 4H17.5A2.5 2.5 0 0 1 20 6.5v7A2.5 2.5 0 0 1 17.5 16H10l-4.5 4v-4H6.5A2.5 2.5 0 0 1 4 13.5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
-                </svg>
-              </span>
-              <span class="orb-node__label">Feedback</span>
-            </button>
-
-            <button class="orb-node orb-node--stats" type="button" data-view="stats" style="--x: -182px; --y: 98px;">
-              <span class="orb-node__icon">
-                <svg viewBox="0 0 24 24">
-                  <path d="M5 19V9M12 19V5M19 19v-8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                </svg>
-              </span>
-              <span class="orb-node__label">Stats</span>
-            </button>
-
-            <button class="orb-node orb-node--about" type="button" data-view="about" style="--x: -182px; --y: -98px;">
-              <span class="orb-node__icon">
-                <svg viewBox="0 0 24 24">
-                  <circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="1.8"></circle>
-                  <path d="M12 10v5M12 7h.01" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-                </svg>
-              </span>
-              <span class="orb-node__label">About</span>
-            </button>
-          </div>
-
-          <div class="orb-caption">
-            <p class="orb-caption__eyebrow">Navegación inmersiva</p>
-            <h2>Hover o tap sobre la esfera para desplegar el sistema.</h2>
+    <main id="mainContent" class="view-stage">
+      <section class="view is-active" id="view-home">
+        <section class="hero-panel panel reveal">
+          <div class="hero-copy">
+            <p class="eyebrow">Experiencia principal</p>
+            <h2>Reserva el mejor espacio sin perder tiempo comparando.</h2>
             <p>
-              Cada nodo abre una funcionalidad con transición fluida. Así el menú deja de ser una lista común y se convierte en una experiencia.
+              Lumen Reserve analiza capacidad, horario, equipamiento y modo de uso para sugerir automáticamente el lugar ideal.
             </p>
-          </div>
-        </div>
-      </section>
 
-      <section class="content-zone">
-        <article class="content-panel view-panel is-active" id="view-dashboard">
-          <div class="panel-tag">Dashboard</div>
-          <h3>Centro de control visual</h3>
-          <p>
-            Esta vista resume el estado del sistema, las tareas activas y la actividad reciente con una composición clara y moderna.
-          </p>
-
-          <div class="feature-grid">
-            <article class="feature-card">
-              <span class="feature-card__label">Total</span>
-              <strong>12</strong>
-              <small>Tareas registradas</small>
-            </article>
-            <article class="feature-card">
-              <span class="feature-card__label">Active</span>
-              <strong>05</strong>
-              <small>En proceso</small>
-            </article>
-            <article class="feature-card">
-              <span class="feature-card__label">Focus</span>
-              <strong>89%</strong>
-              <small>Índice de enfoque</small>
-            </article>
-          </div>
-        </article>
-
-        <article class="content-panel view-panel" id="view-board" hidden>
-          <div class="panel-tag">Board</div>
-          <h3>Flujo de tareas simplificado</h3>
-          <p>
-            Aquí el usuario entiende rápido el estado de cada bloque mediante columnas limpias y tarjetas enfocadas.
-          </p>
-
-          <div class="board-grid">
-            <section class="mini-column">
-              <h4>Backlog</h4>
-              <div class="mini-task">Revisión de interfaz</div>
-              <div class="mini-task">Mapa de navegación</div>
-            </section>
-
-            <section class="mini-column">
-              <h4>Active</h4>
-              <div class="mini-task active">Construcción del sistema orbital</div>
-              <div class="mini-task active">Animaciones del core</div>
-            </section>
-
-            <section class="mini-column">
-              <h4>Complete</h4>
-              <div class="mini-task complete">Moodboard base</div>
-            </section>
-          </div>
-        </article>
-
-        <article class="content-panel view-panel" id="view-studio" hidden>
-          <div class="panel-tag">Studio</div>
-          <h3>Área de creación y edición</h3>
-          <p>
-            Esta sección representa el formulario principal del prototipo con mejor jerarquía y lectura más simple.
-          </p>
-
-          <form class="smart-form">
-            <div class="field">
-              <label for="title">Título</label>
-              <input id="title" type="text" placeholder="Rediseñar interacción principal" />
-            </div>
-            <div class="field">
-              <label for="category">Categoría</label>
-              <input id="category" type="text" placeholder="Diseño / Frontend / UX" />
-            </div>
-            <div class="field field-full">
-              <label for="summary">Resumen</label>
-              <textarea id="summary" rows="5" placeholder="Describe el alcance real de la tarea"></textarea>
-            </div>
-            <div class="field">
-              <label for="priority">Prioridad</label>
-              <select id="priority">
-                <option>Alta</option>
-                <option>Media</option>
-                <option>Baja</option>
-              </select>
-            </div>
-            <div class="field">
-              <label for="date">Fecha</label>
-              <input id="date" type="date" />
-            </div>
-
-            <div class="form-actions">
-              <button class="primary-btn" type="button">Guardar</button>
-              <button class="ghost-btn" type="reset">Limpiar</button>
-            </div>
-          </form>
-        </article>
-
-        <article class="content-panel view-panel" id="view-feedback" hidden>
-          <div class="panel-tag">Feedback</div>
-          <h3>Retroalimentación inmediata</h3>
-          <p>
-            Esta vista demuestra mensajes de confirmación, error y estados útiles para la práctica de usabilidad.
-          </p>
-
-          <div class="feedback-stack">
-            <div class="feedback-card success">Tarea guardada con éxito.</div>
-            <div class="feedback-card warning">Revisa la prioridad antes de continuar.</div>
-            <div class="feedback-card error">Falta completar un campo obligatorio.</div>
-          </div>
-        </article>
-
-        <article class="content-panel view-panel" id="view-stats" hidden>
-          <div class="panel-tag">Stats</div>
-          <h3>Indicadores rápidos</h3>
-          <p>
-            El sistema también puede resumir avance, prioridades y actividad de forma comprensible.
-          </p>
-
-          <div class="stats-stack">
-            <div class="stat-line">
-              <span>Progreso general</span>
-              <div class="stat-bar"><i style="width: 82%"></i></div>
-            </div>
-            <div class="stat-line">
-              <span>Consistencia visual</span>
-              <div class="stat-bar"><i style="width: 91%"></i></div>
-            </div>
-            <div class="stat-line">
-              <span>Claridad de flujo</span>
-              <div class="stat-bar"><i style="width: 88%"></i></div>
-            </div>
-          </div>
-        </article>
-
-        <article class="content-panel view-panel" id="view-about" hidden>
-          <div class="panel-tag">About</div>
-          <h3>Por qué este diseño es mejor</h3>
-          <p>
-            La navegación principal deja de ser una barra tradicional y se transforma en una interacción protagonista más memorable, pero sin sacrificar comprensión.
-          </p>
-
-          <ul class="about-list">
-            <li>La esfera central funciona como punto de entrada visual.</li>
-            <li>Los nodos orbitan y se entienden más rápido por icono y etiqueta.</li>
-            <li>En desktop se activa por hover y en móvil por tap.</li>
-            <li>Las vistas internas siguen siendo limpias para no confundir al usuario.</li>
-          </ul>
-        </article>
-      </section>
-    </main>
-  </div>
-
-  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-</body>
-</html>
+            <div class="hero-actions">
+              <button class="primary-btn nav-button" data-view="reserve" type="button">Crear reserva</button>
+              <button class="ghost-btn
