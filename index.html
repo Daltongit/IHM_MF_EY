@@ -1,267 +1,351 @@
 <!DOCTYPE html>
-<html lang="es">
-
+<html lang="es" data-theme="dark">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Prototipo - Sistema de Gestión de Tareas</title>
-    <link rel="stylesheet" href="./css/styles.css" />
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PulseBoard — Prototipo HCI</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Syne:wght@700;800&display=swap" rel="stylesheet">
+
+  <link rel="stylesheet" href="./css/style.css" />
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="./js/config.js"></script>
+  <script type="module" src="./js/app.js"></script>
 </head>
-
 <body>
-    <a href="#main-content" class="skip-link">Saltar al contenido</a>
+  <a class="skip-link" href="#mainContent">Saltar al contenido</a>
 
-    <header class="topbar">
-        <div class="brand">
-            <div class="brand__logo" aria-hidden="true">
-                <svg viewBox="0 0 64 64" role="img">
-                    <rect x="8" y="10" width="48" height="44" rx="10" ry="10"></rect>
-                    <path d="M20 24h24M20 32h24M20 40h14"></path>
-                    <path d="M44 40l4 4 8-10"></path>
-                </svg>
+  <div class="noise"></div>
+  <div class="radar radar-a" aria-hidden="true"></div>
+  <div class="radar radar-b" aria-hidden="true"></div>
+
+  <div class="shell">
+    <aside class="rail" aria-label="Panel lateral">
+      <div class="brand-lockup">
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 72 72">
+            <rect x="7" y="7" width="58" height="58" rx="18" fill="none" stroke="currentColor" stroke-width="2.5"></rect>
+            <path d="M21 43.5 30.5 34l7 6.5L51 26" fill="none" stroke="currentColor" stroke-width="4.5" stroke-linecap="round" stroke-linejoin="round"></path>
+            <path d="M18 54h36" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"></path>
+          </svg>
+        </div>
+
+        <div>
+          <p class="overline">Proyecto</p>
+          <h1>PulseBoard</h1>
+          <p class="muted">Prototipo interactivo conectado a Supabase</p>
+        </div>
+      </div>
+
+      <nav class="rail-nav" aria-label="Secciones">
+        <button class="rail-link is-active" data-view="dashboard" type="button" aria-current="page">
+          <span class="rail-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M4 12.5 12 5l8 7.5v6.5H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+              <path d="M9.5 19v-4.5h5V19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+            </svg>
+          </span>
+          <span>
+            <strong>Pulse</strong>
+            <small>Resumen operativo</small>
+          </span>
+        </button>
+
+        <button class="rail-link" data-view="board" type="button">
+          <span class="rail-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <rect x="3.5" y="4.5" width="6.5" height="15" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+              <rect x="13.5" y="4.5" width="7" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+              <rect x="13.5" y="13.5" width="7" height="6" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+            </svg>
+          </span>
+          <span>
+            <strong>Board</strong>
+            <small>Estados y flujo</small>
+          </span>
+        </button>
+
+        <button class="rail-link" data-view="studio" type="button">
+          <span class="rail-icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24">
+              <path d="M5 18.5 17.5 6a2.1 2.1 0 1 1 3 3L8 21.5H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+              <path d="M14.5 9 19 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
+            </svg>
+          </span>
+          <span>
+            <strong>Studio</strong>
+            <small>Crear o editar</small>
+          </span>
+        </button>
+      </nav>
+
+      <section class="rail-card">
+        <p class="overline">Capa visual</p>
+        <h2>Estética distinta</h2>
+        <p class="muted">
+          Interface editorial oscura, superficies recortadas, microanimación cinemática y gráficos textuales sin iconografía genérica.
+        </p>
+      </section>
+
+      <button id="themeToggle" class="theme-toggle" type="button" aria-label="Cambiar tema">
+        <span class="theme-toggle__dot"></span>
+        Alternar tema
+      </button>
+    </aside>
+
+    <div class="stage">
+      <header class="topbar">
+        <div>
+          <p class="overline">Sistema</p>
+          <h2 id="viewTitle">Pulse / resumen operativo</h2>
+        </div>
+
+        <div class="topbar-actions">
+          <div class="search-wrap">
+            <label class="sr-only" for="searchInput">Buscar tarea</label>
+            <input id="searchInput" type="search" placeholder="Buscar por título, categoría o responsable" />
+          </div>
+
+          <label class="filter-wrap">
+            <span class="sr-only">Filtrar por estado</span>
+            <select id="stateFilter">
+              <option value="all">Todos los estados</option>
+              <option value="backlog">Backlog</option>
+              <option value="active">Active</option>
+              <option value="complete">Complete</option>
+            </select>
+          </label>
+        </div>
+      </header>
+
+      <main id="mainContent" class="views">
+        <section class="view is-active" id="view-dashboard">
+          <div class="hero-panel clip-card">
+            <div class="hero-panel__content">
+              <p class="overline">Vista 1 / Pulse</p>
+              <h3 class="display-title">Un prototipo con presencia real, no una plantilla reciclada.</h3>
+              <p class="hero-copy">
+                Crea, edita, consulta y mueve tareas con una capa visual fuerte, feedback inmediato y persistencia real en Supabase.
+              </p>
+
+              <div class="hero-actions">
+                <button class="button button--solid" type="button" data-quick-nav="studio">Nueva tarea</button>
+                <button class="button button--ghost" type="button" data-quick-nav="board">Ver board</button>
+              </div>
             </div>
+
+            <div class="signal-stack">
+              <article class="signal-card">
+                <span>Total</span>
+                <strong id="metricTotal">0</strong>
+              </article>
+              <article class="signal-card">
+                <span>Active</span>
+                <strong id="metricActive">0</strong>
+              </article>
+              <article class="signal-card">
+                <span>Complete</span>
+                <strong id="metricComplete">0</strong>
+              </article>
+            </div>
+          </div>
+
+          <div class="dashboard-grid">
+            <article class="insight-panel clip-card">
+              <div class="panel-head">
+                <div>
+                  <p class="overline">Radar</p>
+                  <h3>Lectura rápida</h3>
+                </div>
+              </div>
+
+              <div class="meter-wrap">
+                <div class="meter">
+                  <div id="focusMeterFill" class="meter-fill"></div>
+                </div>
+                <div class="meter-meta">
+                  <strong id="averageFocus">0%</strong>
+                  <span>Índice promedio de enfoque</span>
+                </div>
+              </div>
+
+              <div class="mini-facts" id="miniFacts"></div>
+            </article>
+
+            <article class="stream-panel clip-card">
+              <div class="panel-head">
+                <div>
+                  <p class="overline">Actividad</p>
+                  <h3>Último movimiento</h3>
+                </div>
+              </div>
+
+              <div id="recentList" class="recent-list"></div>
+            </article>
+          </div>
+        </section>
+
+        <section class="view" id="view-board" hidden>
+          <div class="board-head">
             <div>
-                <p class="brand__eyebrow">Práctica 6</p>
-                <h1 class="brand__title">Sistema de Gestión de Tareas</h1>
+              <p class="overline">Vista 2 / Board</p>
+              <h3>Flujo operativo por estado</h3>
             </div>
-        </div>
 
-        <div class="topbar__actions">
-            <button id="themeToggle" class="icon-btn" type="button" aria-label="Cambiar tema">
-                <span class="icon-btn__sun" aria-hidden="true">☀</span>
-                <span class="icon-btn__moon" aria-hidden="true">☾</span>
-            </button>
-            <button id="openAddTaskTop" class="btn btn--primary" type="button">
-                Nueva tarea
-            </button>
-        </div>
-    </header>
+            <button class="button button--solid" type="button" data-quick-nav="studio">Crear tarea</button>
+          </div>
 
-    <div class="layout">
-        <aside class="sidebar" aria-label="Navegación principal">
-            <nav class="nav">
-                <button class="nav__link nav__link--active" data-view="dashboard" type="button">
-                    Resumen
-                </button>
-                <button class="nav__link" data-view="tasks" type="button">
-                    Tareas
-                </button>
-                <button class="nav__link" data-view="add-task" type="button">
-                    Añadir tarea
-                </button>
-            </nav>
-
-            <section class="panel panel--compact">
-                <h2 class="panel__title">Estado del prototipo</h2>
-                <ul class="status-list" role="list">
-                    <li>3 pantallas funcionales</li>
-                    <li>Formulario interactivo</li>
-                    <li>Filtro y búsqueda</li>
-                    <li>Confirmación visual</li>
-                    <li>Diseño accesible</li>
-                </ul>
-            </section>
-        </aside>
-
-        <main id="main-content" class="content">
-            <!-- Dashboard -->
-            <section id="view-dashboard" class="view view--active" aria-labelledby="dashboard-title">
-                <div class="section-head">
-                    <div>
-                        <p class="section-head__eyebrow">Pantalla 1</p>
-                        <h2 id="dashboard-title">Resumen general</h2>
-                        <p class="section-head__text">
-                            Vista principal con métricas, actividades recientes y acceso rápido a las acciones más
-                            importantes.
-                        </p>
-                    </div>
-                    <button id="dashboardAddBtn" class="btn btn--primary" type="button">Agregar tarea</button>
-                </div>
-
-                <div class="stats-grid">
-                    <article class="stat-card">
-                        <p class="stat-card__label">Total</p>
-                        <p class="stat-card__value" id="totalTasks">0</p>
-                    </article>
-
-                    <article class="stat-card">
-                        <p class="stat-card__label">Pendientes</p>
-                        <p class="stat-card__value" id="pendingTasks">0</p>
-                    </article>
-
-                    <article class="stat-card">
-                        <p class="stat-card__label">Completadas</p>
-                        <p class="stat-card__value" id="completedTasks">0</p>
-                    </article>
-
-                    <article class="stat-card">
-                        <p class="stat-card__label">Alta prioridad</p>
-                        <p class="stat-card__value" id="highPriorityTasks">0</p>
-                    </article>
-                </div>
-
-                <div class="dashboard-grid">
-                    <article class="panel">
-                        <div class="panel__header">
-                            <h3 class="panel__title">Tareas recientes</h3>
-                            <button class="btn btn--ghost" data-go-view="tasks" type="button">Ver todas</button>
-                        </div>
-                        <div id="recentTasks" class="task-list task-list--compact"></div>
-                    </article>
-
-                    <article class="panel">
-                        <div class="panel__header">
-                            <h3 class="panel__title">Accesos rápidos</h3>
-                        </div>
-                        <div class="quick-actions">
-                            <button class="quick-action" data-go-view="add-task" type="button">
-                                <span class="quick-action__title">Registrar tarea</span>
-                                <span class="quick-action__text">Abre el formulario principal.</span>
-                            </button>
-
-                            <button class="quick-action" data-go-view="tasks" type="button">
-                                <span class="quick-action__title">Gestionar tareas</span>
-                                <span class="quick-action__text">Filtra, completa o elimina tareas.</span>
-                            </button>
-
-                            <button class="quick-action" id="simulateErrorBtn" type="button">
-                                <span class="quick-action__title">Probar feedback</span>
-                                <span class="quick-action__text">Muestra un mensaje de error simulado.</span>
-                            </button>
-                        </div>
-                    </article>
-                </div>
+          <div class="lane-grid">
+            <section class="lane clip-card">
+              <div class="lane-head">
+                <h4>Backlog</h4>
+                <span id="countBacklog" class="lane-count">0</span>
+              </div>
+              <div id="laneBacklog" class="lane-body"></div>
             </section>
 
-            <!-- Tasks -->
-            <section id="view-tasks" class="view" aria-labelledby="tasks-title">
-                <div class="section-head">
-                    <div>
-                        <p class="section-head__eyebrow">Pantalla 2</p>
-                        <h2 id="tasks-title">Listado de tareas</h2>
-                        <p class="section-head__text">
-                            Aquí el usuario puede buscar, filtrar, completar y eliminar tareas.
-                        </p>
-                    </div>
-                </div>
-
-                <article class="panel">
-                    <div class="filters">
-                        <div class="field">
-                            <label for="searchInput">Buscar tarea</label>
-                            <input id="searchInput" type="text" placeholder="Ej. informe, diseño, reunión"
-                                autocomplete="off" />
-                        </div>
-
-                        <div class="field">
-                            <label for="statusFilter">Estado</label>
-                            <select id="statusFilter">
-                                <option value="all">Todas</option>
-                                <option value="pending">Pendientes</option>
-                                <option value="completed">Completadas</option>
-                            </select>
-                        </div>
-
-                        <div class="field">
-                            <label for="priorityFilter">Prioridad</label>
-                            <select id="priorityFilter">
-                                <option value="all">Todas</option>
-                                <option value="Alta">Alta</option>
-                                <option value="Media">Media</option>
-                                <option value="Baja">Baja</option>
-                            </select>
-                        </div>
-                    </div>
-                </article>
-
-                <div id="tasksContainer" class="task-list" aria-live="polite"></div>
+            <section class="lane clip-card lane--active">
+              <div class="lane-head">
+                <h4>Active</h4>
+                <span id="countActive" class="lane-count">0</span>
+              </div>
+              <div id="laneActive" class="lane-body"></div>
             </section>
 
-            <!-- Add task -->
-            <section id="view-add-task" class="view" aria-labelledby="add-title">
-                <div class="section-head">
-                    <div>
-                        <p class="section-head__eyebrow">Pantalla 3</p>
-                        <h2 id="add-title">Añadir nueva tarea</h2>
-                        <p class="section-head__text">
-                            Formulario con validación y retroalimentación inmediata.
-                        </p>
-                    </div>
+            <section class="lane clip-card lane--complete">
+              <div class="lane-head">
+                <h4>Complete</h4>
+                <span id="countComplete" class="lane-count">0</span>
+              </div>
+              <div id="laneComplete" class="lane-body"></div>
+            </section>
+          </div>
+        </section>
+
+        <section class="view" id="view-studio" hidden>
+          <div class="studio-grid">
+            <article class="editor-panel clip-card">
+              <div class="panel-head">
+                <div>
+                  <p class="overline">Vista 3 / Studio</p>
+                  <h3 id="formTitle">Crear nueva tarea</h3>
+                </div>
+                <button id="resetFormBtn" class="button button--ghost" type="button">Limpiar</button>
+              </div>
+
+              <form id="taskForm" class="editor-form" novalidate>
+                <input type="hidden" id="taskId" />
+
+                <div class="field">
+                  <label for="title">Título</label>
+                  <input id="title" name="title" type="text" placeholder="Ej. Rediseñar flujo de confirmación" />
+                  <small class="error" id="error-title"></small>
                 </div>
 
-                <article class="panel form-panel">
-                    <form id="taskForm" novalidate>
-                        <div class="form-grid">
-                            <div class="field">
-                                <label for="title">Título de la tarea</label>
-                                <input id="title" name="title" type="text" maxlength="60" required />
-                                <small class="error-message" id="titleError"></small>
-                            </div>
+                <div class="field">
+                  <label for="category">Categoría</label>
+                  <input id="category" name="category" type="text" placeholder="Diseño, Frontend, Investigación..." />
+                  <small class="error" id="error-category"></small>
+                </div>
 
-                            <div class="field">
-                                <label for="date">Fecha límite</label>
-                                <input id="date" name="date" type="date" required />
-                                <small class="error-message" id="dateError"></small>
-                            </div>
+                <div class="field field--full">
+                  <label for="summary">Resumen</label>
+                  <textarea id="summary" name="summary" rows="5" placeholder="Describe el alcance real de la tarea"></textarea>
+                  <small class="error" id="error-summary"></small>
+                </div>
 
-                            <div class="field field--full">
-                                <label for="description">Descripción</label>
-                                <textarea id="description" name="description" rows="5" maxlength="240"
-                                    required></textarea>
-                                <small class="error-message" id="descriptionError"></small>
-                            </div>
+                <div class="field">
+                  <label for="owner">Responsable</label>
+                  <input id="owner" name="owner" type="text" placeholder="Nombre del responsable" />
+                  <small class="error" id="error-owner"></small>
+                </div>
 
-                            <div class="field">
-                                <label for="priority">Prioridad</label>
-                                <select id="priority" name="priority" required>
-                                    <option value="">Seleccione una opción</option>
-                                    <option value="Alta">Alta</option>
-                                    <option value="Media">Media</option>
-                                    <option value="Baja">Baja</option>
-                                </select>
-                                <small class="error-message" id="priorityError"></small>
-                            </div>
+                <div class="field">
+                  <label for="state">Estado</label>
+                  <select id="state" name="state">
+                    <option value="backlog">Backlog</option>
+                    <option value="active">Active</option>
+                    <option value="complete">Complete</option>
+                  </select>
+                </div>
 
-                            <div class="field">
-                                <label for="category">Categoría</label>
-                                <select id="category" name="category" required>
-                                    <option value="">Seleccione una categoría</option>
-                                    <option value="Académico">Académico</option>
-                                    <option value="Personal">Personal</option>
-                                    <option value="Trabajo">Trabajo</option>
-                                </select>
-                                <small class="error-message" id="categoryError"></small>
-                            </div>
-                        </div>
+                <div class="field">
+                  <label for="priority">Prioridad (1 a 5)</label>
+                  <input id="priority" name="priority" type="number" min="1" max="5" value="3" />
+                  <small class="error" id="error-priority"></small>
+                </div>
 
-                        <div class="form-actions">
-                            <button class="btn btn--secondary" id="clearFormBtn" type="button">Limpiar</button>
-                            <button class="btn btn--primary" type="submit">Guardar tarea</button>
-                        </div>
-                    </form>
-                </article>
-            </section>
-        </main>
+                <div class="field">
+                  <label for="focus">Focus score (0 a 100)</label>
+                  <input id="focus" name="focus" type="number" min="0" max="100" value="60" />
+                  <small class="error" id="error-focus"></small>
+                </div>
+
+                <div class="field">
+                  <label for="dueDate">Fecha límite</label>
+                  <input id="dueDate" name="dueDate" type="date" />
+                </div>
+
+                <div class="form-actions">
+                  <button class="button button--solid" type="submit" id="submitBtn">Guardar tarea</button>
+                  <button class="button button--ghost" type="button" data-quick-nav="board">Ir al board</button>
+                </div>
+              </form>
+            </article>
+
+            <article class="preview-panel clip-card">
+              <div class="panel-head">
+                <div>
+                  <p class="overline">Preview</p>
+                  <h3>Vista previa en vivo</h3>
+                </div>
+              </div>
+
+              <div class="preview-card">
+                <div class="preview-top">
+                  <div>
+                    <h4 id="previewTitle">Título de la tarea</h4>
+                    <p id="previewSummary">El resumen aparecerá aquí cuando empieces a escribir.</p>
+                  </div>
+                  <span id="previewState" class="task-pill">Backlog</span>
+                </div>
+
+                <div class="preview-meta">
+                  <span id="previewCategory">Sin categoría</span>
+                  <span id="previewOwner">Sin responsable</span>
+                  <span id="previewPriority">Prioridad 3</span>
+                  <span id="previewFocus">Focus 60</span>
+                </div>
+              </div>
+
+              <div class="preview-note">
+                El Studio funciona como formulario principal del prototipo y también como pantalla de edición.
+              </div>
+            </article>
+          </div>
+        </section>
+      </main>
     </div>
+  </div>
 
-    <!-- Modal -->
-    <div id="confirmModal" class="modal" aria-hidden="true" role="dialog" aria-modal="true"
-        aria-labelledby="modalTitle">
-        <div class="modal__backdrop" data-close-modal="true"></div>
-        <div class="modal__card" role="document">
-            <h2 id="modalTitle">Confirmar eliminación</h2>
-            <p id="modalText">¿Seguro que deseas eliminar esta tarea?</p>
-            <div class="modal__actions">
-                <button class="btn btn--secondary" id="cancelDeleteBtn" type="button">Cancelar</button>
-                <button class="btn btn--danger" id="confirmDeleteBtn" type="button">Eliminar</button>
-            </div>
+  <dialog id="detailDialog" class="detail-dialog">
+    <div class="detail-shell clip-card">
+      <div class="panel-head">
+        <div>
+          <p class="overline">Detalle</p>
+          <h3 id="detailTitle">Tarea</h3>
         </div>
+        <button id="closeDetailBtn" class="icon-close" type="button" aria-label="Cerrar detalle">✕</button>
+      </div>
+
+      <div id="detailBody" class="detail-body"></div>
     </div>
+  </dialog>
 
-    <!-- Toast -->
-    <div id="toast" class="toast" aria-live="assertive" aria-atomic="true"></div>
-
-    <script src="./js/app.js"></script>
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <div id="srStatus" class="sr-only" aria-live="polite"></div>
 </body>
-
 </html>
