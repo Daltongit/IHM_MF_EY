@@ -3,750 +3,198 @@ const supabase = createClient(window.SUPABASE_URL, window.SUPABASE_ANON_KEY);
 
 const state = {
   view: "home",
-  theme: document.documentElement.getAttribute("data-theme") || "dark",
-  spaces: [],
-  reservations: [],
-  suggestion: null,
-  selectedSpaceId: "",
+  cases: [],
   filters: {
     search: "",
-    vibe: "all",
-    capacity: "all"
-  }
+    color: "all",
+    status: "all"
+  },
+  currentInference: null
 };
 
 const el = {
-  navPills: document.querySelectorAll(".command-pill"),
-  navButtons: document.querySelectorAll(".nav-button"),
+  navCards: document.querySelectorAll(".nav-card"),
+  navButtons: document.querySelectorAll(".nav-btn"),
   views: {
     home: document.getElementById("view-home"),
-    spaces: document.getElementById("view-spaces"),
-    reserve: document.getElementById("view-reserve"),
-    bookings: document.getElementById("view-bookings")
+    triage: document.getElementById("view-triage"),
+    queue: document.getElementById("view-queue")
   },
-  themeToggle: document.getElementById("themeToggle"),
-  homeSpotlight: document.getElementById("homeSpotlight"),
-  metricSpaces: document.getElementById("metricSpaces"),
-  metricBookings: document.getElementById("metricBookings"),
-  metricAvailability: document.getElementById("metricAvailability"),
-  metricSpacesBar: document.getElementById("metricSpacesBar"),
-  metricBookingsBar: document.getElementById("metricBookingsBar"),
-  metricAvailabilityBar: document.getElementById("metricAvailabilityBar"),
-  spaceSearch: document.getElementById("spaceSearch"),
-  vibeFilter: document.getElementById("vibeFilter"),
-  capacityFilter: document.getElementById("capacityFilter"),
-  spacesGrid: document.getElementById("spacesGrid"),
-  reservationForm: document.getElementById("reservationForm"),
-  reserverName: document.getElementById("reserverName"),
-  purpose: document.getElementById("purpose"),
-  attendees: document.getElementById("attendees"),
-  experienceMode: document.getElementById("experienceMode"),
-  bookingDate: document.getElementById("bookingDate"),
-  startTime: document.getElementById("startTime"),
-  endTime: document.getElementById("endTime"),
-  spaceSelect: document.getElementById("spaceSelect"),
-  needsScreen: document.getElementById("needsScreen"),
-  needsVideo: document.getElementById("needsVideo"),
-  note: document.getElementById("note"),
-  suggestionCard: document.getElementById("suggestionCard"),
-  resetReservationForm: document.getElementById("resetReservationForm"),
-  bookingsList: document.getElementById("bookingsList"),
-  spaceDialog: document.getElementById("spaceDialog"),
-  dialogTitle: document.getElementById("dialogTitle"),
-  dialogBody: document.getElementById("dialogBody"),
+  statRed: document.getElementById("statRed"),
+  statYellow: document.getElementById("statYellow"),
+  statGreen: document.getElementById("statGreen"),
+  statWaiting: document.getElementById("statWaiting"),
+  lineRed: document.getElementById("lineRed"),
+  lineYellow: document.getElementById("lineYellow"),
+  lineGreen: document.getElementById("lineGreen"),
+  lineWaiting: document.getElementById("lineWaiting"),
+  triageForm: document.getElementById("triageForm"),
+  patientName: document.getElementById("patientName"),
+  patientAge: document.getElementById("patientAge"),
+  chiefComplaint: document.getElementById("chiefComplaint"),
+  breathingLevel: document.getElementById("breathingLevel"),
+  mentalState: document.getElementById("mentalState"),
+  painLevel: document.getElementById("painLevel"),
+  painValue: document.getElementById("painValue"),
+  severeBleeding: document.getElementById("severeBleeding"),
+  chestPain: document.getElementById("chestPain"),
+  fever: document.getElementById("fever"),
+  trauma: document.getElementById("trauma"),
+  notes: document.getElementById("notes"),
+  inferBtn: document.getElementById("inferBtn"),
+  resetBtn: document.getElementById("resetBtn"),
+  inferenceCard: document.getElementById("inferenceCard"),
+  searchCase: document.getElementById("searchCase"),
+  filterColor: document.getElementById("filterColor"),
+  filterStatus: document.getElementById("filterStatus"),
+  queueList: document.getElementById("queueList"),
+  detailDialog: document.getElementById("detailDialog"),
+  detailTitle: document.getElementById("detailTitle"),
+  detailBody: document.getElementById("detailBody"),
   closeDialogBtn: document.getElementById("closeDialogBtn"),
   toastRegion: document.getElementById("toastRegion"),
   srStatus: document.getElementById("srStatus")
 };
 
-const errorIds = [
-  "reserverName",
-  "purpose",
-  "attendees",
-  "bookingDate",
-  "startTime",
-  "endTime",
-  "spaceSelect"
-];
+const errorMap = {
+  patientName: document.getElementById("error-patientName"),
+  patientAge: document.getElementById("error-patientAge"),
+  chiefComplaint: document.getElementById("error-chiefComplaint"),
+  canWalk: document.getElementById("error-canWalk")
+};
 
 init();
 
 async function init() {
   bindEvents();
-  setDefaultDate();
-  applyTheme(state.theme);
+  syncSelectableStates();
+  el.painValue.textContent = el.painLevel.value;
   observeReveal();
-  await loadData();
+  await loadCases();
 }
 
 function bindEvents() {
-  el.navPills.forEach((btn) => {
-    btn.addEventListener("click", () => showView(btn.dataset.view));
+  el.navCards.forEach((button) => {
+    button.addEventListener("click", () => showView(button.dataset.view));
   });
 
-  el.navButtons.forEach((btn) => {
-    btn.addEventListener("click", () => showView(btn.dataset.view));
-  });
-
-  el.themeToggle.addEventListener("click", toggleTheme);
-
-  el.spaceSearch.addEventListener("input", (e) => {
-    state.filters.search = e.target.value.trim().toLowerCase();
-    renderSpaces();
-  });
-
-  el.vibeFilter.addEventListener("change", (e) => {
-    state.filters.vibe = e.target.value;
-    renderSpaces();
-  });
-
-  el.capacityFilter.addEventListener("change", (e) => {
-    state.filters.capacity = e.target.value;
-    renderSpaces();
+  el.navButtons.forEach((button) => {
+    button.addEventListener("click", () => showView(button.dataset.view));
   });
 
   [
-    el.reserverName,
-    el.purpose,
-    el.attendees,
-    el.experienceMode,
-    el.bookingDate,
-    el.startTime,
-    el.endTime,
-    el.spaceSelect,
-    el.needsScreen,
-    el.needsVideo,
-    el.note
-  ].forEach((input) => {
-    input.addEventListener("input", updateSuggestion);
-    input.addEventListener("change", updateSuggestion);
+    el.patientName,
+    el.patientAge,
+    el.chiefComplaint,
+    el.breathingLevel,
+    el.mentalState,
+    el.painLevel,
+    el.severeBleeding,
+    el.chestPain,
+    el.fever,
+    el.trauma,
+    el.notes,
+    ...document.querySelectorAll('input[name="canWalk"]')
+  ].forEach((node) => {
+    node.addEventListener("input", handleFormChange);
+    node.addEventListener("change", handleFormChange);
   });
 
-  el.reservationForm.addEventListener("submit", handleReservationSubmit);
-
-  el.resetReservationForm.addEventListener("click", () => {
-    el.reservationForm.reset();
-    setDefaultDate();
-    state.selectedSpaceId = "";
-    clearErrors();
-    populateSpaceSelect();
-    updateSuggestion();
+  el.inferBtn.addEventListener("click", () => {
+    updateInference(true);
   });
 
-  el.closeDialogBtn.addEventListener("click", () => el.spaceDialog.close());
+  el.resetBtn.addEventListener("click", resetForm);
 
-  document.addEventListener("keydown", (e) => {
-    if (e.key === "Escape" && el.spaceDialog.open) {
-      el.spaceDialog.close();
+  el.triageForm.addEventListener("submit", handleSubmit);
+
+  el.searchCase.addEventListener("input", (event) => {
+    state.filters.search = event.target.value.trim().toLowerCase();
+    renderQueue();
+  });
+
+  el.filterColor.addEventListener("change", (event) => {
+    state.filters.color = event.target.value;
+    renderQueue();
+  });
+
+  el.filterStatus.addEventListener("change", (event) => {
+    state.filters.status = event.target.value;
+    renderQueue();
+  });
+
+  el.queueList.addEventListener("click", async (event) => {
+    const button = event.target.closest("button[data-action]");
+    if (!button) return;
+
+    const action = button.dataset.action;
+    const id = button.dataset.id;
+
+    if (action === "detail") {
+      openCaseDetail(id);
+    }
+
+    if (action === "start") {
+      await changeCaseStatus(id, "in_progress");
+    }
+
+    if (action === "finish") {
+      await changeCaseStatus(id, "attended");
+    }
+
+    if (action === "reopen") {
+      await changeCaseStatus(id, "waiting");
+    }
+  });
+
+  el.closeDialogBtn.addEventListener("click", () => el.detailDialog.close());
+
+  document.addEventListener("keydown", (event) => {
+    if (event.key === "Escape" && el.detailDialog.open) {
+      el.detailDialog.close();
     }
   });
 }
 
-async function loadData() {
-  const [spacesResponse, reservationsResponse] = await Promise.all([
-    supabase.from(window.TABLES.spaces).select("*").order("name", { ascending: true }),
-    supabase.from(window.TABLES.reservations).select("*").order("booking_date", { ascending: true })
-  ]);
+function handleFormChange() {
+  el.painValue.textContent = el.painLevel.value;
+  syncSelectableStates();
+  updateInference(false);
+}
 
-  if (spacesResponse.error || reservationsResponse.error) {
-    console.error(spacesResponse.error || reservationsResponse.error);
-    showToast("Error al cargar datos desde Supabase.", "error");
-    announce("Error al cargar datos.");
+function syncSelectableStates() {
+  document.querySelectorAll(".choice-card").forEach((card) => {
+    const input = card.querySelector("input");
+    card.classList.toggle("selected", input.checked);
+  });
+
+  document.querySelectorAll(".check-chip").forEach((chip) => {
+    const input = chip.querySelector("input");
+    chip.classList.toggle("selected", input.checked);
+  });
+}
+
+async function loadCases() {
+  const { data, error } = await supabase
+    .from(window.TABLES.cases)
+    .select("*")
+    .order("created_at", { ascending: false });
+
+  if (error) {
+    console.error(error);
+    showToast("No se pudieron cargar los casos.", "error");
+    announce("Error al cargar los casos.");
     return;
   }
 
-  state.spaces = spacesResponse.data || [];
-  state.reservations = reservationsResponse.data || [];
-
-  populateSpaceSelect();
+  state.cases = data || [];
   renderAll();
-  updateSuggestion();
-  showToast("Datos sincronizados.", "info");
 }
 
 function renderAll() {
   renderHome();
-  renderSpaces();
-  renderBookings();
-}
-
-function renderHome() {
-  const activeSpaces = state.spaces.filter((space) => space.status === "active");
-  const upcomingBookings = state.reservations.filter((reservation) => reservation.status === "confirmed");
-  const availability = activeSpaces.length
-    ? Math.round(((activeSpaces.length - busySpacesCountForNextDay()) / activeSpaces.length) * 100)
-    : 0;
-
-  el.metricSpaces.textContent = activeSpaces.length;
-  el.metricBookings.textContent = upcomingBookings.length;
-  el.metricAvailability.textContent = `${availability}%`;
-
-  el.metricSpacesBar.style.width = `${Math.min(activeSpaces.length * 14, 100)}%`;
-  el.metricBookingsBar.style.width = `${Math.min(upcomingBookings.length * 14, 100)}%`;
-  el.metricAvailabilityBar.style.width = `${availability}%`;
-
-  const spotlight = [...activeSpaces]
-    .sort((a, b) => b.quiet_level - a.quiet_level)
-    .slice(0, 3);
-
-  el.homeSpotlight.innerHTML = spotlight.map((space) => `
-    <article class="ribbon-card" style="--ribbon-accent:${space.accent_color}">
-      <strong>${escapeHTML(space.name)}</strong>
-      <span>${escapeHTML(space.zone)} · ${space.capacity} personas · ${escapeHTML(space.vibe)}</span>
-    </article>
-  `).join("");
-}
-
-function busySpacesCountForNextDay() {
-  const targetDate = addDaysISO(1);
-  const busyIds = new Set(
-    state.reservations
-      .filter((reservation) => reservation.status === "confirmed" && reservation.booking_date === targetDate)
-      .map((reservation) => reservation.space_id)
-  );
-  return busyIds.size;
-}
-
-function getFilteredSpaces() {
-  return state.spaces.filter((space) => {
-    const matchesSearch =
-      `${space.name} ${space.zone} ${space.description}`.toLowerCase().includes(state.filters.search);
-
-    const matchesVibe =
-      state.filters.vibe === "all" || space.vibe === state.filters.vibe;
-
-    const matchesCapacity =
-      state.filters.capacity === "all" || space.capacity <= Number(state.filters.capacity);
-
-    return matchesSearch && matchesVibe && matchesCapacity;
-  });
-}
-
-function renderSpaces() {
-  const filtered = getFilteredSpaces();
-
-  if (!filtered.length) {
-    el.spacesGrid.innerHTML = `
-      <article class="space-card">
-        <h3>No se encontraron espacios</h3>
-        <p>Ajusta los filtros o limpia la búsqueda.</p>
-      </article>
-    `;
-    return;
-  }
-
-  el.spacesGrid.innerHTML = filtered.map((space) => {
-    const currentStatus = computeDisplayAvailability(space.id);
-    return `
-      <article class="space-card reveal" style="--accent-glow:${space.accent_color}">
-        <div class="space-card__head">
-          <div>
-            <h3>${escapeHTML(space.name)}</h3>
-            <span class="space-status ${currentStatus.className}">${currentStatus.label}</span>
-          </div>
-        </div>
-
-        <div class="space-meta">
-          <span class="meta-chip">${escapeHTML(space.zone)}</span>
-          <span class="meta-chip">${space.capacity} personas</span>
-          <span class="meta-chip">${escapeHTML(space.vibe)}</span>
-          <span class="meta-chip">Quiet ${space.quiet_level}/5</span>
-        </div>
-
-        <p>${escapeHTML(space.description)}</p>
-
-        <div class="space-meta">
-          <span class="meta-chip">${space.has_screen ? "Pantalla" : "Sin pantalla"}</span>
-          <span class="meta-chip">${space.has_video ? "Video" : "Sin video"}</span>
-          <span class="meta-chip">${space.status === "active" ? "Operativo" : "Mantenimiento"}</span>
-        </div>
-
-        <div class="card-actions">
-          <button class="primary-btn" type="button" data-action="reserve-space" data-id="${space.id}">Reservar</button>
-          <button class="soft-btn" type="button" data-action="show-space" data-id="${space.id}">Detalle</button>
-        </div>
-      </article>
-    `;
-  }).join("");
-
-  observeReveal();
-
-  el.spacesGrid.querySelectorAll("[data-action='reserve-space']").forEach((btn) => {
-    btn.addEventListener("click", () => preselectSpace(btn.dataset.id));
-  });
-
-  el.spacesGrid.querySelectorAll("[data-action='show-space']").forEach((btn) => {
-    btn.addEventListener("click", () => openSpaceDialog(btn.dataset.id));
-  });
-}
-
-function computeDisplayAvailability(spaceId) {
-  const space = getSpaceById(spaceId);
-
-  if (!space || space.status !== "active") {
-    return { label: "Offline", className: "offline" };
-  }
-
-  const tomorrow = addDaysISO(1);
-  const hasNextDayBooking = state.reservations.some((reservation) =>
-    reservation.space_id === spaceId &&
-    reservation.status === "confirmed" &&
-    reservation.booking_date === tomorrow
-  );
-
-  if (hasNextDayBooking) {
-    return { label: "Próxima ocupación", className: "busy" };
-  }
-
-  return { label: "Disponible", className: "available" };
-}
-
-function populateSpaceSelect() {
-  const options = state.spaces
-    .filter((space) => space.status === "active")
-    .map((space) => `
-      <option value="${space.id}" ${state.selectedSpaceId === space.id ? "selected" : ""}>
-        ${space.name} · ${space.zone} · ${space.capacity} personas
-      </option>
-    `)
-    .join("");
-
-  el.spaceSelect.innerHTML = `
-    <option value="">Elegir manualmente</option>
-    ${options}
-  `;
-}
-
-function getFormData() {
-  return {
-    reserver_name: el.reserverName.value.trim(),
-    purpose: el.purpose.value.trim(),
-    attendees: Number(el.attendees.value),
-    booking_date: el.bookingDate.value,
-    start_time: el.startTime.value,
-    end_time: el.endTime.value,
-    experience_mode: el.experienceMode.value,
-    needs_screen: el.needsScreen.checked,
-    needs_video: el.needsVideo.checked,
-    note: el.note.value.trim(),
-    space_id: el.spaceSelect.value || state.selectedSpaceId || ""
-  };
-}
-
-function updateSuggestion() {
-  const formData = getFormData();
-  const suggestion = getSmartSuggestion(formData);
-  state.suggestion = suggestion;
-
-  if (!suggestion) {
-    el.suggestionCard.className = "suggestion-card empty";
-    el.suggestionCard.innerHTML = `Completa los datos para recibir una recomendación automática.`;
-    return;
-  }
-
-  el.suggestionCard.className = "suggestion-card";
-  el.suggestionCard.innerHTML = `
-    <div class="suggestion-score">Match ${suggestion.score}/100</div>
-    <h3>${escapeHTML(suggestion.space.name)}</h3>
-    <p>${escapeHTML(suggestion.space.zone)} · ${suggestion.space.capacity} personas · ${escapeHTML(suggestion.space.vibe)}</p>
-
-    <div class="space-meta">
-      <span class="meta-chip">${suggestion.space.has_screen ? "Pantalla" : "Sin pantalla"}</span>
-      <span class="meta-chip">${suggestion.space.has_video ? "Video" : "Sin video"}</span>
-      <span class="meta-chip">Quiet ${suggestion.space.quiet_level}/5</span>
-    </div>
-
-    <div class="reason-list">
-      ${suggestion.reasons.map((reason) => `<div class="reason">${escapeHTML(reason)}</div>`).join("")}
-    </div>
-
-    <div class="card-actions">
-      <button class="primary-btn" type="button" id="useSuggestionBtn">Usar sugerencia</button>
-      <button class="soft-btn" type="button" id="viewSuggestionBtn">Ver espacio</button>
-    </div>
-  `;
-
-  document.getElementById("useSuggestionBtn").addEventListener("click", () => {
-    state.selectedSpaceId = suggestion.space.id;
-    populateSpaceSelect();
-    el.spaceSelect.value = suggestion.space.id;
-    showToast(`Espacio sugerido seleccionado: ${suggestion.space.name}`, "success");
-  });
-
-  document.getElementById("viewSuggestionBtn").addEventListener("click", () => {
-    openSpaceDialog(suggestion.space.id);
-  });
-}
-
-function getSmartSuggestion(formData) {
-  if (!formData.attendees || !formData.booking_date || !formData.start_time || !formData.end_time) {
-    return null;
-  }
-
-  if (formData.start_time >= formData.end_time) {
-    return null;
-  }
-
-  const candidates = state.spaces
-    .filter((space) => space.status === "active")
-    .filter((space) => isSpaceAvailable(space.id, formData.booking_date, formData.start_time, formData.end_time));
-
-  if (!candidates.length) {
-    return null;
-  }
-
-  const ranked = candidates.map((space) => {
-    let score = 0;
-    const reasons = [];
-
-    if (space.capacity >= formData.attendees) {
-      const spare = space.capacity - formData.attendees;
-      score += Math.max(15, 40 - spare * 4);
-      reasons.push(`Capacidad adecuada para ${formData.attendees} persona(s).`);
-    } else {
-      score -= 100;
-    }
-
-    if (space.vibe === formData.experience_mode) {
-      score += 25;
-      reasons.push(`Coincide con el modo ${formData.experience_mode}.`);
-    }
-
-    if (formData.needs_screen) {
-      if (space.has_screen) {
-        score += 15;
-        reasons.push(`Tiene pantalla disponible.`);
-      } else {
-        score -= 60;
-      }
-    }
-
-    if (formData.needs_video) {
-      if (space.has_video) {
-        score += 15;
-        reasons.push(`Tiene soporte de video.`);
-      } else {
-        score -= 60;
-      }
-    }
-
-    if (formData.experience_mode === "Focus") {
-      score += space.quiet_level * 5;
-      reasons.push(`Nivel de silencio ${space.quiet_level}/5.`);
-    }
-
-    if (formData.experience_mode === "Presentation" && space.has_screen) {
-      score += 10;
-    }
-
-    if (formData.experience_mode === "Workshop" && space.capacity >= formData.attendees + 2) {
-      score += 8;
-    }
-
-    return { space, score: Math.max(0, Math.min(100, score)), reasons };
-  });
-
-  ranked.sort((a, b) => b.score - a.score);
-  return ranked[0];
-}
-
-function isSpaceAvailable(spaceId, date, start, end, ignoreReservationId = null) {
-  return !state.reservations.some((reservation) => {
-    if (reservation.id === ignoreReservationId) return false;
-    if (reservation.space_id !== spaceId) return false;
-    if (reservation.status !== "confirmed") return false;
-    if (reservation.booking_date !== date) return false;
-    return start < reservation.end_time && end > reservation.start_time;
-  });
-}
-
-function preselectSpace(spaceId) {
-  state.selectedSpaceId = spaceId;
-  populateSpaceSelect();
-  el.spaceSelect.value = spaceId;
-  showView("reserve");
-  updateSuggestion();
-  showToast("Espacio precargado para reservar.", "info");
-}
-
-function openSpaceDialog(spaceId) {
-  const space = getSpaceById(spaceId);
-  if (!space) return;
-
-  const availability = computeDisplayAvailability(space.id);
-
-  el.dialogTitle.textContent = space.name;
-  el.dialogBody.innerHTML = `
-    <div class="dialog-row">
-      <strong>Zona</strong>
-      <span>${escapeHTML(space.zone)}</span>
-    </div>
-    <div class="dialog-row">
-      <strong>Descripción</strong>
-      <span>${escapeHTML(space.description)}</span>
-    </div>
-    <div class="dialog-row">
-      <strong>Capacidad y modo</strong>
-      <span>${space.capacity} personas · ${escapeHTML(space.vibe)}</span>
-    </div>
-    <div class="dialog-row">
-      <strong>Disponibilidad</strong>
-      <span>${availability.label}</span>
-    </div>
-    <div class="dialog-row">
-      <strong>Recursos</strong>
-      <span>${space.has_screen ? "Pantalla" : "Sin pantalla"} · ${space.has_video ? "Video" : "Sin video"} · Quiet ${space.quiet_level}/5</span>
-    </div>
-    <div class="card-actions">
-      <button class="primary-btn" type="button" id="dialogReserveBtn">Reservar este espacio</button>
-    </div>
-  `;
-
-  el.spaceDialog.showModal();
-
-  document.getElementById("dialogReserveBtn").addEventListener("click", () => {
-    el.spaceDialog.close();
-    preselectSpace(spaceId);
-  });
-}
-
-async function handleReservationSubmit(event) {
-  event.preventDefault();
-  clearErrors();
-
-  const formData = getFormData();
-  let chosenSpaceId = formData.space_id;
-
-  if (!chosenSpaceId && state.suggestion) {
-    chosenSpaceId = state.suggestion.space.id;
-  }
-
-  const errors = validateForm(formData, chosenSpaceId);
-  if (Object.keys(errors).length) {
-    setErrors(errors);
-    showToast("Revisa los campos marcados.", "error");
-    announce("Formulario con errores.");
-    return;
-  }
-
-  const chosenSpace = getSpaceById(chosenSpaceId);
-
-  if (!chosenSpace) {
-    setErrors({ spaceSelect: "Selecciona un espacio válido." });
-    return;
-  }
-
-  if (formData.attendees > chosenSpace.capacity) {
-    setErrors({ spaceSelect: `Este espacio solo admite ${chosenSpace.capacity} persona(s).` });
-    showToast("Capacidad insuficiente para ese espacio.", "error");
-    return;
-  }
-
-  if (!isSpaceAvailable(chosenSpaceId, formData.booking_date, formData.start_time, formData.end_time)) {
-    setErrors({ spaceSelect: "Ese espacio ya está ocupado en ese horario." });
-    showToast("Horario no disponible para ese espacio.", "error");
-    return;
-  }
-
-  const payload = {
-    space_id: chosenSpaceId,
-    reserver_name: formData.reserver_name,
-    purpose: formData.purpose,
-    attendees: formData.attendees,
-    booking_date: formData.booking_date,
-    start_time: formData.start_time,
-    end_time: formData.end_time,
-    experience_mode: formData.experience_mode,
-    needs_screen: formData.needs_screen,
-    needs_video: formData.needs_video,
-    note: formData.note,
-    status: "confirmed"
-  };
-
-  const { error } = await supabase.from(window.TABLES.reservations).insert(payload);
-
-  if (error) {
-    console.error(error);
-    showToast("No se pudo registrar la reserva.", "error");
-    announce("Error al registrar la reserva.");
-    return;
-  }
-
-  showToast(`Reserva confirmada en ${chosenSpace.name}.`, "success");
-  announce(`Reserva confirmada en ${chosenSpace.name}.`);
-
-  el.reservationForm.reset();
-  setDefaultDate();
-  state.selectedSpaceId = "";
-  populateSpaceSelect();
-  await loadData();
-  showView("bookings");
-}
-
-function validateForm(formData, chosenSpaceId) {
-  const errors = {};
-
-  if (formData.reserver_name.length < 3) {
-    errors.reserverName = "Ingresa un nombre válido.";
-  }
-
-  if (formData.purpose.length < 4) {
-    errors.purpose = "El propósito debe tener al menos 4 caracteres.";
-  }
-
-  if (!formData.attendees || formData.attendees < 1) {
-    errors.attendees = "Indica el número de asistentes.";
-  }
-
-  if (!formData.booking_date) {
-    errors.bookingDate = "Selecciona una fecha.";
-  }
-
-  if (!formData.start_time) {
-    errors.startTime = "Selecciona la hora de inicio.";
-  }
-
-  if (!formData.end_time) {
-    errors.endTime = "Selecciona la hora de fin.";
-  }
-
-  if (formData.start_time && formData.end_time && formData.start_time >= formData.end_time) {
-    errors.endTime = "La hora final debe ser posterior.";
-  }
-
-  if (!chosenSpaceId && !state.suggestion) {
-    errors.spaceSelect = "Selecciona un espacio o usa la sugerencia.";
-  }
-
-  return errors;
-}
-
-function setErrors(errors) {
-  Object.entries(errors).forEach(([key, value]) => {
-    const node = document.getElementById(`error-${key}`);
-    if (node) node.textContent = value;
-  });
-}
-
-function clearErrors() {
-  errorIds.forEach((id) => {
-    const node = document.getElementById(`error-${id}`);
-    if (node) node.textContent = "";
-  });
-}
-
-function renderBookings() {
-  const reservations = [...state.reservations].sort((a, b) => {
-    const dateA = `${a.booking_date}T${a.start_time}`;
-    const dateB = `${b.booking_date}T${b.start_time}`;
-    return new Date(dateA) - new Date(dateB);
-  });
-
-  if (!reservations.length) {
-    el.bookingsList.innerHTML = `
-      <article class="booking-card">
-        <h3>No hay reservas todavía</h3>
-        <p>Crea la primera reserva desde la vista Reservar.</p>
-      </article>
-    `;
-    return;
-  }
-
-  el.bookingsList.innerHTML = reservations.map((reservation) => {
-    const space = getSpaceById(reservation.space_id);
-    return `
-      <article class="booking-card reveal">
-        <span class="booking-status ${reservation.status}">${reservation.status === "confirmed" ? "Confirmada" : "Cancelada"}</span>
-        <h3>${escapeHTML(space?.name || "Espacio")}</h3>
-
-        <div class="booking-meta">
-          <span class="meta-chip">${escapeHTML(reservation.reserver_name)}</span>
-          <span class="meta-chip">${escapeHTML(reservation.experience_mode)}</span>
-          <span class="meta-chip">${reservation.attendees} asistentes</span>
-        </div>
-
-        <p>${escapeHTML(reservation.purpose)}</p>
-
-        <div class="booking-meta">
-          <span class="meta-chip">${formatDate(reservation.booking_date)}</span>
-          <span class="meta-chip">${reservation.start_time} - ${reservation.end_time}</span>
-          <span class="meta-chip">${space?.zone || "Zona"}</span>
-        </div>
-
-        <div class="card-actions">
-          <button class="soft-btn" type="button" data-action="booking-detail" data-id="${reservation.id}">Ver detalle</button>
-          ${reservation.status === "confirmed" ? `<button class="cancel-btn" type="button" data-action="cancel-booking" data-id="${reservation.id}">Cancelar</button>` : ""}
-        </div>
-      </article>
-    `;
-  }).join("");
-
-  observeReveal();
-
-  el.bookingsList.querySelectorAll("[data-action='booking-detail']").forEach((btn) => {
-    btn.addEventListener("click", () => openBookingDetail(btn.dataset.id));
-  });
-
-  el.bookingsList.querySelectorAll("[data-action='cancel-booking']").forEach((btn) => {
-    btn.addEventListener("click", () => cancelBooking(btn.dataset.id));
-  });
-}
-
-function openBookingDetail(bookingId) {
-  const reservation = state.reservations.find((item) => item.id === bookingId);
-  if (!reservation) return;
-
-  const space = getSpaceById(reservation.space_id);
-
-  el.dialogTitle.textContent = `Reserva · ${space?.name || "Espacio"}`;
-  el.dialogBody.innerHTML = `
-    <div class="dialog-row">
-      <strong>Reservante</strong>
-      <span>${escapeHTML(reservation.reserver_name)}</span>
-    </div>
-    <div class="dialog-row">
-      <strong>Propósito</strong>
-      <span>${escapeHTML(reservation.purpose)}</span>
-    </div>
-    <div class="dialog-row">
-      <strong>Fecha y hora</strong>
-      <span>${formatDate(reservation.booking_date)} · ${reservation.start_time} - ${reservation.end_time}</span>
-    </div>
-    <div class="dialog-row">
-      <strong>Modo y capacidad</strong>
-      <span>${escapeHTML(reservation.experience_mode)} · ${reservation.attendees} asistentes</span>
-    </div>
-    <div class="dialog-row">
-      <strong>Notas</strong>
-      <span>${escapeHTML(reservation.note || "Sin nota")}</span>
-    </div>
-  `;
-
-  el.spaceDialog.showModal();
-}
-
-async function cancelBooking(bookingId) {
-  const confirmCancel = window.confirm("¿Deseas cancelar esta reserva?");
-  if (!confirmCancel) return;
-
-  const { error } = await supabase
-    .from(window.TABLES.reservations)
-    .update({ status: "cancelled" })
-    .eq("id", bookingId);
-
-  if (error) {
-    console.error(error);
-    showToast("No se pudo cancelar la reserva.", "error");
-    return;
-  }
-
-  showToast("Reserva cancelada.", "success");
-  announce("Reserva cancelada.");
-  await loadData();
-}
-
-function getSpaceById(spaceId) {
-  return state.spaces.find((space) => space.id === spaceId);
+  renderQueue();
+  updateInference(false);
 }
 
 function showView(view) {
@@ -758,44 +206,477 @@ function showView(view) {
     section.classList.toggle("is-active", active);
   });
 
-  el.navPills.forEach((btn) => {
-    btn.classList.toggle("is-active", btn.dataset.view === view);
+  el.navCards.forEach((button) => {
+    button.classList.toggle("is-active", button.dataset.view === view);
   });
 
   announce(`Vista activa: ${view}`);
 }
 
-function toggleTheme() {
-  state.theme = state.theme === "dark" ? "light" : "dark";
-  applyTheme(state.theme);
-  showToast(`Tema ${state.theme === "dark" ? "oscuro" : "claro"} activado.`, "info");
+function getFormData() {
+  const selectedWalk = document.querySelector('input[name="canWalk"]:checked');
+
+  return {
+    patient_name: el.patientName.value.trim(),
+    age: Number(el.patientAge.value),
+    chief_complaint: el.chiefComplaint.value.trim(),
+    can_walk: selectedWalk ? selectedWalk.value === "yes" : null,
+    breathing_level: el.breathingLevel.value,
+    severe_bleeding: el.severeBleeding.checked,
+    chest_pain: el.chestPain.checked,
+    mental_state: el.mentalState.value,
+    pain_level: Number(el.painLevel.value),
+    fever: el.fever.checked,
+    trauma: el.trauma.checked,
+    notes: el.notes.value.trim()
+  };
 }
 
-function applyTheme(theme) {
-  document.documentElement.setAttribute("data-theme", theme);
+function validateForm(data) {
+  const errors = {};
+
+  if (data.patient_name.length < 3) {
+    errors.patientName = "Ingresa un nombre válido.";
+  }
+
+  if (!Number.isInteger(data.age) || data.age < 0 || data.age > 120) {
+    errors.patientAge = "Ingresa una edad válida.";
+  }
+
+  if (data.chief_complaint.length < 4) {
+    errors.chiefComplaint = "Describe el motivo principal.";
+  }
+
+  if (data.can_walk === null) {
+    errors.canWalk = "Selecciona si el paciente puede caminar.";
+  }
+
+  return errors;
 }
 
-function setDefaultDate() {
-  el.bookingDate.value = addDaysISO(1);
+function clearErrors() {
+  Object.values(errorMap).forEach((node) => {
+    node.textContent = "";
+  });
 }
 
-function addDaysISO(days) {
-  const date = new Date();
-  date.setDate(date.getDate() + days);
-  return date.toISOString().split("T")[0];
+function setErrors(errors) {
+  Object.entries(errors).forEach(([key, message]) => {
+    if (errorMap[key]) {
+      errorMap[key].textContent = message;
+    }
+  });
 }
 
-function formatDate(dateString) {
-  return new Intl.DateTimeFormat("es-EC", {
-    day: "2-digit",
-    month: "short",
-    year: "numeric"
-  }).format(new Date(`${dateString}T00:00:00`));
+function inferTriage(data) {
+  let score = 0;
+  const reasons = [];
+
+  if (data.can_walk === false) {
+    score += 18;
+    reasons.push("Paciente no deambula por sí mismo.");
+  } else {
+    score += 4;
+    reasons.push("Paciente deambula.");
+  }
+
+  if (data.breathing_level === "moderate") {
+    score += 22;
+    reasons.push("Dificultad respiratoria moderada.");
+  }
+
+  if (data.breathing_level === "severe") {
+    score += 45;
+    reasons.push("Dificultad respiratoria severa.");
+  }
+
+  if (data.severe_bleeding) {
+    score += 50;
+    reasons.push("Sangrado severo detectado.");
+  }
+
+  if (data.chest_pain) {
+    score += 35;
+    reasons.push("Dolor torácico reportado.");
+  }
+
+  if (data.mental_state === "confused") {
+    score += 22;
+    reasons.push("Estado mental confuso.");
+  }
+
+  if (data.mental_state === "unresponsive") {
+    score += 50;
+    reasons.push("Paciente no responde.");
+  }
+
+  if (data.trauma) {
+    score += 15;
+    reasons.push("Trauma reportado.");
+  }
+
+  if (data.fever) {
+    score += 8;
+    reasons.push("Fiebre reportada.");
+  }
+
+  if (data.pain_level >= 9) {
+    score += 25;
+    reasons.push(`Dolor extremo ${data.pain_level}/10.`);
+  } else if (data.pain_level >= 6) {
+    score += 15;
+    reasons.push(`Dolor alto ${data.pain_level}/10.`);
+  } else if (data.pain_level >= 3) {
+    score += 7;
+    reasons.push(`Dolor leve a moderado ${data.pain_level}/10.`);
+  }
+
+  score = Math.min(100, score);
+
+  let color = "green";
+  let label = "Verde · Demorable";
+
+  const hasRedFlag =
+    data.severe_bleeding ||
+    data.chest_pain ||
+    data.breathing_level === "severe" ||
+    data.mental_state === "unresponsive";
+
+  const hasYellowFlag =
+    data.breathing_level === "moderate" ||
+    data.mental_state === "confused" ||
+    data.can_walk === false ||
+    data.trauma ||
+    data.pain_level >= 6;
+
+  if (hasRedFlag || score >= 70) {
+    color = "red";
+    label = "Rojo · Inmediato";
+  } else if (hasYellowFlag || score >= 35) {
+    color = "yellow";
+    label = "Amarillo · Urgente";
+  }
+
+  return {
+    color,
+    label,
+    score,
+    reasons: uniqueReasons(reasons).slice(0, 5)
+  };
+}
+
+function uniqueReasons(list) {
+  return [...new Set(list)];
+}
+
+function updateInference(forceMessage) {
+  const data = getFormData();
+  const hasMeaningfulInput =
+    data.patient_name ||
+    data.chief_complaint ||
+    data.pain_level > 0 ||
+    data.severe_bleeding ||
+    data.chest_pain ||
+    data.fever ||
+    data.trauma ||
+    data.breathing_level !== "none" ||
+    data.mental_state !== "alert" ||
+    data.can_walk === false;
+
+  if (!hasMeaningfulInput) {
+    state.currentInference = null;
+    el.inferenceCard.className = "inference-card empty";
+    el.inferenceCard.innerHTML = "Completa el formulario o pulsa “Inferir prioridad” para ver la clasificación automática.";
+    return;
+  }
+
+  const result = inferTriage(data);
+  state.currentInference = result;
+
+  el.inferenceCard.className = `inference-card ${result.color}`;
+  el.inferenceCard.innerHTML = `
+    <div class="priority-badge ${result.color}">${result.label}</div>
+    <h3>Prioridad sugerida</h3>
+    <p>El sistema recomienda este nivel de atención con base en las respuestas registradas.</p>
+
+    <div class="score-box">
+      <strong>Puntaje inferido</strong>
+      <span>${result.score}/100</span>
+    </div>
+
+    <div class="reason-list">
+      ${result.reasons.map((reason) => `<div class="reason-item">${escapeHTML(reason)}</div>`).join("")}
+    </div>
+  `;
+
+  if (forceMessage) {
+    showToast(`Prioridad inferida: ${result.label}.`, "info");
+    announce(`Prioridad inferida: ${result.label}.`);
+  }
+}
+
+async function handleSubmit(event) {
+  event.preventDefault();
+
+  clearErrors();
+
+  const formData = getFormData();
+  const errors = validateForm(formData);
+
+  if (Object.keys(errors).length) {
+    setErrors(errors);
+    showToast("Revisa los campos marcados.", "error");
+    announce("Formulario con errores.");
+    return;
+  }
+
+  const inference = inferTriage(formData);
+
+  const payload = {
+    ...formData,
+    triage_color: inference.color,
+    triage_label: inference.label,
+    inferred_score: inference.score,
+    inferred_reason: inference.reasons.join(" | "),
+    attention_status: "waiting"
+  };
+
+  const { data, error } = await supabase
+    .from(window.TABLES.cases)
+    .insert(payload)
+    .select()
+    .single();
+
+  if (error) {
+    console.error(error);
+    showToast("No se pudo guardar el caso.", "error");
+    announce("Error al guardar el caso.");
+    return;
+  }
+
+  await logAction(data.id, "created", `Caso creado con prioridad ${inference.label}`);
+  await logAction(data.id, "inference", `Inferencia automática: ${inference.label} con puntaje ${inference.score}`);
+
+  showToast(`Caso guardado: ${inference.label}.`, "success");
+  announce(`Caso guardado: ${inference.label}.`);
+
+  resetForm();
+  await loadCases();
+  showView("queue");
+}
+
+function resetForm() {
+  el.triageForm.reset();
+  el.painLevel.value = 0;
+  el.painValue.textContent = "0";
+  const firstWalkOption = document.querySelector('input[name="canWalk"][value="yes"]');
+  if (firstWalkOption) firstWalkOption.checked = true;
+  clearErrors();
+  syncSelectableStates();
+  updateInference(false);
+}
+
+async function logAction(caseId, type, note) {
+  const { error } = await supabase
+    .from(window.TABLES.actions)
+    .insert({
+      case_id: caseId,
+      action_type: type,
+      action_note: note
+    });
+
+  if (error) {
+    console.error(error);
+  }
+}
+
+function renderHome() {
+  const redCount = state.cases.filter((item) => item.triage_color === "red").length;
+  const yellowCount = state.cases.filter((item) => item.triage_color === "yellow").length;
+  const greenCount = state.cases.filter((item) => item.triage_color === "green").length;
+  const waitingCount = state.cases.filter((item) => item.attention_status === "waiting").length;
+  const total = Math.max(state.cases.length, 1);
+
+  el.statRed.textContent = redCount;
+  el.statYellow.textContent = yellowCount;
+  el.statGreen.textContent = greenCount;
+  el.statWaiting.textContent = waitingCount;
+
+  el.lineRed.style.width = `${Math.round((redCount / total) * 100)}%`;
+  el.lineYellow.style.width = `${Math.round((yellowCount / total) * 100)}%`;
+  el.lineGreen.style.width = `${Math.round((greenCount / total) * 100)}%`;
+  el.lineWaiting.style.width = `${Math.round((waitingCount / total) * 100)}%`;
+}
+
+function getFilteredCases() {
+  return state.cases.filter((item) => {
+    const matchesSearch =
+      `${item.patient_name} ${item.chief_complaint}`.toLowerCase().includes(state.filters.search);
+
+    const matchesColor =
+      state.filters.color === "all" || item.triage_color === state.filters.color;
+
+    const matchesStatus =
+      state.filters.status === "all" || item.attention_status === state.filters.status;
+
+    return matchesSearch && matchesColor && matchesStatus;
+  });
+}
+
+function renderQueue() {
+  const cases = getFilteredCases();
+
+  if (!cases.length) {
+    el.queueList.innerHTML = `
+      <article class="queue-card" style="--accent-color:${getColorHex('green')}">
+        <h3>No hay casos para mostrar</h3>
+        <p>Ajusta los filtros o registra un nuevo ingreso.</p>
+      </article>
+    `;
+    return;
+  }
+
+  el.queueList.innerHTML = cases.map((item) => {
+    const colorHex = getColorHex(item.triage_color);
+    const statusChip = getStatusChip(item.attention_status);
+
+    return `
+      <article class="queue-card reveal" style="--accent-color:${colorHex}">
+        <div class="queue-meta">
+          <span class="chip ${item.triage_color}">${escapeHTML(item.triage_label)}</span>
+          <span class="chip ${statusChip.className}">${statusChip.label}</span>
+          <span class="chip">${item.age} años</span>
+        </div>
+
+        <h3>${escapeHTML(item.patient_name)}</h3>
+        <p>${escapeHTML(item.chief_complaint)}</p>
+
+        <div class="queue-meta">
+          <span class="chip">${item.can_walk ? "Camina" : "No camina"}</span>
+          <span class="chip">${getBreathingLabel(item.breathing_level)}</span>
+          <span class="chip">Dolor ${item.pain_level}/10</span>
+        </div>
+
+        <div class="card-actions">
+          <button class="btn btn-ghost" type="button" data-action="detail" data-id="${item.id}">Detalle</button>
+          ${renderStatusActionButton(item)}
+        </div>
+      </article>
+    `;
+  }).join("");
+
+  observeReveal();
+}
+
+function renderStatusActionButton(item) {
+  if (item.attention_status === "waiting") {
+    return `<button class="btn btn-warning" type="button" data-action="start" data-id="${item.id}">Iniciar atención</button>`;
+  }
+
+  if (item.attention_status === "in_progress") {
+    return `<button class="btn btn-primary" type="button" data-action="finish" data-id="${item.id}">Marcar atendido</button>`;
+  }
+
+  return `<button class="btn btn-secondary" type="button" data-action="reopen" data-id="${item.id}">Reabrir caso</button>`;
+}
+
+function getStatusChip(status) {
+  if (status === "waiting") {
+    return { label: "Pendiente", className: "waiting" };
+  }
+
+  if (status === "in_progress") {
+    return { label: "En atención", className: "in-progress" };
+  }
+
+  return { label: "Atendido", className: "attended" };
+}
+
+function getBreathingLabel(level) {
+  if (level === "severe") return "Respiración severa";
+  if (level === "moderate") return "Respiración moderada";
+  return "Sin dificultad respiratoria";
+}
+
+function getColorHex(color) {
+  if (color === "red") return "#ef5b5b";
+  if (color === "yellow") return "#f4c542";
+  return "#39b86b";
+}
+
+function openCaseDetail(id) {
+  const item = state.cases.find((record) => record.id === id);
+  if (!item) return;
+
+  el.detailTitle.textContent = item.patient_name;
+  el.detailBody.innerHTML = `
+    <div class="detail-item">
+      <strong>Clasificación</strong>
+      <span>${escapeHTML(item.triage_label)} · Puntaje ${item.inferred_score}/100</span>
+    </div>
+
+    <div class="detail-item">
+      <strong>Motivo principal</strong>
+      <span>${escapeHTML(item.chief_complaint)}</span>
+    </div>
+
+    <div class="detail-item">
+      <strong>Variables del triaje</strong>
+      <span>${item.can_walk ? "Camina" : "No camina"} · ${getBreathingLabel(item.breathing_level)} · ${item.mental_state} · Dolor ${item.pain_level}/10</span>
+    </div>
+
+    <div class="detail-item">
+      <strong>Señales adicionales</strong>
+      <span>${item.severe_bleeding ? "Sangrado severo · " : ""}${item.chest_pain ? "Dolor torácico · " : ""}${item.fever ? "Fiebre · " : ""}${item.trauma ? "Trauma" : "Sin alarmas adicionales registradas"}</span>
+    </div>
+
+    <div class="detail-item">
+      <strong>Razones inferidas</strong>
+      <span>${escapeHTML(item.inferred_reason)}</span>
+    </div>
+
+    <div class="detail-item">
+      <strong>Estado de atención</strong>
+      <span>${getStatusChip(item.attention_status).label}</span>
+    </div>
+
+    <div class="detail-item">
+      <strong>Observaciones</strong>
+      <span>${escapeHTML(item.notes || "Sin observaciones")}</span>
+    </div>
+  `;
+
+  el.detailDialog.showModal();
+}
+
+async function changeCaseStatus(id, nextStatus) {
+  const { error } = await supabase
+    .from(window.TABLES.cases)
+    .update({ attention_status: nextStatus })
+    .eq("id", id);
+
+  if (error) {
+    console.error(error);
+    showToast("No se pudo actualizar el estado.", "error");
+    return;
+  }
+
+  const statusLabel =
+    nextStatus === "in_progress"
+      ? "En atención"
+      : nextStatus === "attended"
+      ? "Atendido"
+      : "Pendiente";
+
+  await logAction(id, "status_change", `Estado actualizado a ${statusLabel}`);
+  showToast(`Estado actualizado: ${statusLabel}.`, "success");
+  announce(`Estado actualizado: ${statusLabel}.`);
+  await loadCases();
 }
 
 function showToast(message, type = "info") {
   const toast = document.createElement("div");
-  toast.className = `toast toast-${type}`;
+  toast.className = `toast ${type}`;
   toast.textContent = message;
   el.toastRegion.appendChild(toast);
 
@@ -808,7 +689,7 @@ function announce(message) {
   el.srStatus.textContent = "";
   setTimeout(() => {
     el.srStatus.textContent = message;
-  }, 20);
+  }, 30);
 }
 
 function escapeHTML(value) {
@@ -818,7 +699,7 @@ function escapeHTML(value) {
 }
 
 function observeReveal() {
-  const revealElements = document.querySelectorAll(".reveal");
+  const nodes = document.querySelectorAll(".reveal");
   const observer = new IntersectionObserver((entries) => {
     entries.forEach((entry) => {
       if (entry.isIntersecting) {
@@ -827,5 +708,5 @@ function observeReveal() {
     });
   }, { threshold: 0.12 });
 
-  revealElements.forEach((element) => observer.observe(element));
+  nodes.forEach((node) => observer.observe(node));
 }
