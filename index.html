@@ -1,13 +1,13 @@
 <!DOCTYPE html>
-<html lang="es" data-theme="dark">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lumen Reserve</title>
+  <title>ClariTriage</title>
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Clash+Display:wght@600;700&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@400;500;600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
 
   <link rel="stylesheet" href="./css/style.css" />
 
@@ -16,327 +16,342 @@
   <script type="module" src="./js/app.js"></script>
 </head>
 <body>
-  <a class="skip-link" href="#mainContent">Saltar al contenido</a>
+  <a class="skip-link" href="#mainContent">Saltar al contenido principal</a>
 
-  <div class="ambient ambient-a"></div>
-  <div class="ambient ambient-b"></div>
-  <div class="grid-fx"></div>
+  <div class="page-glow page-glow-a"></div>
+  <div class="page-glow page-glow-b"></div>
 
   <div class="app-shell">
     <header class="topbar">
-      <div class="brand-block">
+      <div class="brand">
         <div class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 72 72">
-            <rect x="10" y="10" width="52" height="52" rx="18" fill="none" stroke="currentColor" stroke-width="3"></rect>
-            <path d="M20 42h10l5 8 16-24" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
+          <svg viewBox="0 0 64 64">
+            <rect x="8" y="8" width="48" height="48" rx="16" fill="none" stroke="currentColor" stroke-width="3"></rect>
+            <path d="M22 33h8l4 8 9-18" fill="none" stroke="currentColor" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"></path>
           </svg>
         </div>
 
         <div>
           <p class="eyebrow">Prototipo interactivo</p>
-          <h1>Lumen Reserve</h1>
-          <p class="brand-copy">Sistema inteligente de reservas de espacios con recomendación automática y navegación clara.</p>
+          <h1>ClariTriage</h1>
+          <p class="brand-copy">Sistema de pretriaje con inferencia automática, cola visual y prioridad clínica por colores.</p>
         </div>
       </div>
 
-      <div class="top-actions">
-        <button id="themeToggle" class="ghost-btn" type="button" aria-label="Cambiar tema">Tema</button>
+      <div class="topbar-badge">
+        <span>Rojo</span>
+        <span>Amarillo</span>
+        <span>Verde</span>
       </div>
     </header>
 
-    <nav class="command-nav" aria-label="Navegación principal">
-      <button class="command-pill is-active" type="button" data-view="home">
-        <span class="command-pill__icon">
+    <nav class="nav-grid" aria-label="Navegación principal">
+      <button class="nav-card is-active" type="button" data-view="home">
+        <span class="nav-icon">
           <svg viewBox="0 0 24 24">
-            <path d="M4 12.5 12 5l8 7.5v6.5H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
-            <path d="M9.5 19v-4.5h5V19" fill="none" stroke="currentColor" stroke-width="1.8"></path>
+            <path d="M4 11.8 12 5l8 6.8V20H4z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+            <path d="M9.5 20v-5h5v5" fill="none" stroke="currentColor" stroke-width="1.8"></path>
           </svg>
         </span>
-        <span class="command-pill__text">
+        <span class="nav-copy">
           <strong>Inicio</strong>
-          <small>Resumen vivo</small>
+          <small>Resumen y prioridades</small>
         </span>
       </button>
 
-      <button class="command-pill" type="button" data-view="spaces">
-        <span class="command-pill__icon">
+      <button class="nav-card" type="button" data-view="triage">
+        <span class="nav-icon">
           <svg viewBox="0 0 24 24">
-            <rect x="4" y="4" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
-            <rect x="13" y="4" width="7" height="16" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
-            <rect x="4" y="13" width="7" height="7" rx="1.5" fill="none" stroke="currentColor" stroke-width="1.8"></rect>
+            <path d="M7 4h10M7 20h10M8 4v16M16 4v16M4 8h4M4 16h4M16 12h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
           </svg>
         </span>
-        <span class="command-pill__text">
-          <strong>Espacios</strong>
-          <small>Explorar y filtrar</small>
-        </span>
-      </button>
-
-      <button class="command-pill" type="button" data-view="reserve">
-        <span class="command-pill__icon">
-          <svg viewBox="0 0 24 24">
-            <path d="M5 18.5 17.5 6a2.1 2.1 0 1 1 3 3L8 21.5H5z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
-            <path d="M14.5 9 19 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
-          </svg>
-        </span>
-        <span class="command-pill__text">
-          <strong>Reservar</strong>
+        <span class="nav-copy">
+          <strong>Nuevo triaje</strong>
           <small>Formulario + inferencia</small>
         </span>
       </button>
 
-      <button class="command-pill" type="button" data-view="bookings">
-        <span class="command-pill__icon">
+      <button class="nav-card" type="button" data-view="queue">
+        <span class="nav-icon">
           <svg viewBox="0 0 24 24">
-            <path d="M7 3v3M17 3v3M4 9h16M6 6h12a2 2 0 0 1 2 2v10a3 3 0 0 1-3 3H7a3 3 0 0 1-3-3V8a2 2 0 0 1 2-2z" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"></path>
+            <path d="M7 4h10M5 8h14M5 12h14M5 16h14M7 20h10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"></path>
           </svg>
         </span>
-        <span class="command-pill__text">
-          <strong>Mis reservas</strong>
-          <small>Control y cancelación</small>
+        <span class="nav-copy">
+          <strong>Cola de atención</strong>
+          <small>Casos y estados</small>
         </span>
       </button>
     </nav>
 
-    <main id="mainContent" class="view-stage">
+    <main id="mainContent" class="main-content">
       <section class="view is-active" id="view-home">
-        <section class="hero-panel panel reveal">
+        <section class="hero panel reveal">
           <div class="hero-copy">
-            <p class="eyebrow">Experiencia principal</p>
-            <h2>Reserva el mejor espacio sin perder tiempo comparando.</h2>
+            <p class="eyebrow">Triaje + inferencia</p>
+            <h2>Clasifica primero. Atiende mejor.</h2>
             <p>
-              Lumen Reserve analiza capacidad, horario, equipamiento y modo de uso para sugerir automáticamente el lugar ideal.
+              Registra síntomas clave, deja que el sistema infiera la prioridad y organiza la cola de atención con una lectura inmediata por color.
             </p>
 
             <div class="hero-actions">
-              <button class="primary-btn nav-button" data-view="reserve" type="button">Crear reserva</button>
-              <button class="ghost-btn nav-button" data-view="spaces" type="button">Explorar espacios</button>
+              <button class="btn btn-primary nav-btn" type="button" data-view="triage">Crear caso</button>
+              <button class="btn btn-secondary nav-btn" type="button" data-view="queue">Ver cola</button>
             </div>
           </div>
 
-          <div class="hero-ribbon" id="homeSpotlight"></div>
+          <div class="triage-legend">
+            <article class="legend-card legend-red">
+              <strong>Rojo</strong>
+              <span>Inmediato</span>
+            </article>
+            <article class="legend-card legend-yellow">
+              <strong>Amarillo</strong>
+              <span>Urgente</span>
+            </article>
+            <article class="legend-card legend-green">
+              <strong>Verde</strong>
+              <span>Demorable</span>
+            </article>
+          </div>
         </section>
 
-        <section class="metrics-grid reveal">
-          <article class="metric-card">
-            <span class="metric-card__label">Espacios activos</span>
-            <strong id="metricSpaces">0</strong>
-            <div class="metric-bar"><i id="metricSpacesBar" style="width:0%"></i></div>
+        <section class="stats-grid reveal">
+          <article class="stat-card stat-red">
+            <span class="stat-label">Casos rojos</span>
+            <strong id="statRed">0</strong>
+            <div class="stat-line"><i id="lineRed"></i></div>
           </article>
 
-          <article class="metric-card">
-            <span class="metric-card__label">Reservas próximas</span>
-            <strong id="metricBookings">0</strong>
-            <div class="metric-bar"><i id="metricBookingsBar" style="width:0%"></i></div>
+          <article class="stat-card stat-yellow">
+            <span class="stat-label">Casos amarillos</span>
+            <strong id="statYellow">0</strong>
+            <div class="stat-line"><i id="lineYellow"></i></div>
           </article>
 
-          <article class="metric-card">
-            <span class="metric-card__label">Disponibilidad</span>
-            <strong id="metricAvailability">0%</strong>
-            <div class="metric-bar"><i id="metricAvailabilityBar" style="width:0%"></i></div>
-          </article>
-        </section>
-
-        <section class="insight-grid reveal">
-          <article class="insight-card">
-            <p class="eyebrow">Usabilidad</p>
-            <h3>Navegación clara</h3>
-            <p>La navegación principal usa módulos visibles y un flujo directo entre explorar, reservar y gestionar.</p>
+          <article class="stat-card stat-green">
+            <span class="stat-label">Casos verdes</span>
+            <strong id="statGreen">0</strong>
+            <div class="stat-line"><i id="lineGreen"></i></div>
           </article>
 
-          <article class="insight-card">
-            <p class="eyebrow">Inferencia</p>
-            <h3>Sugerencia automática</h3>
-            <p>El sistema recomienda el espacio más adecuado según tus necesidades reales.</p>
-          </article>
-
-          <article class="insight-card">
-            <p class="eyebrow">Feedback</p>
-            <h3>Respuesta inmediata</h3>
-            <p>Confirmaciones, errores y cambios de estado se muestran al instante.</p>
+          <article class="stat-card stat-neutral">
+            <span class="stat-label">Pendientes</span>
+            <strong id="statWaiting">0</strong>
+            <div class="stat-line"><i id="lineWaiting"></i></div>
           </article>
         </section>
-      </section>
 
-      <section class="view" id="view-spaces" hidden>
-        <section class="panel reveal">
+        <section class="panel process-panel reveal">
           <div class="section-head">
             <div>
-              <p class="eyebrow">Vista 2</p>
-              <h2>Explorar espacios</h2>
-            </div>
-            <button class="primary-btn nav-button" data-view="reserve" type="button">Reservar ahora</button>
-          </div>
-
-          <div class="toolbar">
-            <div class="field">
-              <label for="spaceSearch">Buscar</label>
-              <input id="spaceSearch" type="search" placeholder="Buscar por nombre o zona">
-            </div>
-
-            <div class="field">
-              <label for="vibeFilter">Modo</label>
-              <select id="vibeFilter">
-                <option value="all">Todos</option>
-                <option value="Focus">Focus</option>
-                <option value="Meeting">Meeting</option>
-                <option value="Presentation">Presentation</option>
-                <option value="Workshop">Workshop</option>
-              </select>
-            </div>
-
-            <div class="field">
-              <label for="capacityFilter">Capacidad</label>
-              <select id="capacityFilter">
-                <option value="all">Cualquiera</option>
-                <option value="2">Hasta 2</option>
-                <option value="4">Hasta 4</option>
-                <option value="8">Hasta 8</option>
-                <option value="12">Hasta 12</option>
-              </select>
+              <p class="eyebrow">Flujo simple</p>
+              <h2>Cómo funciona</h2>
             </div>
           </div>
 
-          <div id="spacesGrid" class="spaces-grid"></div>
+          <div class="process-grid">
+            <article class="process-card">
+              <div class="process-number">1</div>
+              <h3>Captura rápida</h3>
+              <p>Nombre, motivo de consulta, dolor, deambulación, respiración y señales de alarma.</p>
+            </article>
+
+            <article class="process-card">
+              <div class="process-number">2</div>
+              <h3>Inferencia visible</h3>
+              <p>El motor calcula prioridad, puntaje y explicación clínica resumida.</p>
+            </article>
+
+            <article class="process-card">
+              <div class="process-number">3</div>
+              <h3>Cola operativa</h3>
+              <p>Los casos quedan listos para iniciar atención, ver detalle o marcar como atendidos.</p>
+            </article>
+          </div>
         </section>
       </section>
 
-      <section class="view" id="view-reserve" hidden>
-        <section class="reserve-layout">
+      <section class="view" id="view-triage" hidden>
+        <section class="triage-layout">
           <article class="panel reveal">
             <div class="section-head">
               <div>
-                <p class="eyebrow">Vista 3</p>
-                <h2>Nueva reserva</h2>
+                <p class="eyebrow">Pantalla 2</p>
+                <h2>Nuevo caso de triaje</h2>
               </div>
             </div>
 
-            <form id="reservationForm" class="form-grid" novalidate>
+            <form id="triageForm" class="form-grid" novalidate>
               <div class="field">
-                <label for="reserverName">Nombre</label>
-                <input id="reserverName" type="text" placeholder="Tu nombre completo">
-                <small class="error-text" id="error-reserverName"></small>
+                <label for="patientName">Nombre del paciente</label>
+                <input id="patientName" type="text" placeholder="Ej. Andrea Pérez" />
+                <small class="error-text" id="error-patientName"></small>
               </div>
 
               <div class="field">
-                <label for="purpose">Propósito</label>
-                <input id="purpose" type="text" placeholder="Ej. reunión académica">
-                <small class="error-text" id="error-purpose"></small>
+                <label for="patientAge">Edad</label>
+                <input id="patientAge" type="number" min="0" max="120" placeholder="Ej. 34" />
+                <small class="error-text" id="error-patientAge"></small>
+              </div>
+
+              <div class="field field-full">
+                <label for="chiefComplaint">Motivo principal</label>
+                <input id="chiefComplaint" type="text" placeholder="Ej. dolor torácico, fiebre, trauma, dificultad respiratoria" />
+                <small class="error-text" id="error-chiefComplaint"></small>
               </div>
 
               <div class="field">
-                <label for="attendees">Asistentes</label>
-                <input id="attendees" type="number" min="1" placeholder="Ej. 6">
-                <small class="error-text" id="error-attendees"></small>
-              </div>
-
-              <div class="field">
-                <label for="experienceMode">Modo</label>
-                <select id="experienceMode">
-                  <option value="Focus">Focus</option>
-                  <option value="Meeting">Meeting</option>
-                  <option value="Presentation">Presentation</option>
-                  <option value="Workshop">Workshop</option>
+                <label for="breathingLevel">Dificultad respiratoria</label>
+                <select id="breathingLevel">
+                  <option value="none">Ninguna</option>
+                  <option value="moderate">Moderada</option>
+                  <option value="severe">Severa</option>
                 </select>
               </div>
 
               <div class="field">
-                <label for="bookingDate">Fecha</label>
-                <input id="bookingDate" type="date">
-                <small class="error-text" id="error-bookingDate"></small>
-              </div>
-
-              <div class="field">
-                <label for="startTime">Hora inicio</label>
-                <input id="startTime" type="time">
-                <small class="error-text" id="error-startTime"></small>
-              </div>
-
-              <div class="field">
-                <label for="endTime">Hora fin</label>
-                <input id="endTime" type="time">
-                <small class="error-text" id="error-endTime"></small>
-              </div>
-
-              <div class="field">
-                <label for="spaceSelect">Espacio</label>
-                <select id="spaceSelect"></select>
-                <small class="error-text" id="error-spaceSelect"></small>
-              </div>
-
-              <div class="toggle-group field-full">
-                <label class="toggle-chip">
-                  <input id="needsScreen" type="checkbox">
-                  <span>Pantalla</span>
-                </label>
-
-                <label class="toggle-chip">
-                  <input id="needsVideo" type="checkbox">
-                  <span>Video</span>
-                </label>
+                <label for="mentalState">Estado mental</label>
+                <select id="mentalState">
+                  <option value="alert">Alerta</option>
+                  <option value="confused">Confundido</option>
+                  <option value="unresponsive">No responde</option>
+                </select>
               </div>
 
               <div class="field field-full">
-                <label for="note">Nota</label>
-                <textarea id="note" rows="4" placeholder="Detalles adicionales"></textarea>
+                <label>¿Puede deambular por sí mismo?</label>
+                <div class="choice-grid">
+                  <label class="choice-card">
+                    <input type="radio" name="canWalk" value="yes" checked />
+                    <span>Sí, camina</span>
+                  </label>
+
+                  <label class="choice-card">
+                    <input type="radio" name="canWalk" value="no" />
+                    <span>No, no camina</span>
+                  </label>
+                </div>
+                <small class="error-text" id="error-canWalk"></small>
               </div>
 
-              <div class="form-actions field-full">
-                <button class="primary-btn" type="submit">Confirmar reserva</button>
-                <button class="ghost-btn" id="resetReservationForm" type="button">Limpiar</button>
+              <div class="field field-full">
+                <label for="painLevel">Dolor reportado: <strong id="painValue">0</strong>/10</label>
+                <input id="painLevel" type="range" min="0" max="10" step="1" value="0" />
+              </div>
+
+              <div class="field field-full">
+                <label>Señales adicionales</label>
+                <div class="check-grid">
+                  <label class="check-chip">
+                    <input id="severeBleeding" type="checkbox" />
+                    <span>Sangrado severo</span>
+                  </label>
+
+                  <label class="check-chip">
+                    <input id="chestPain" type="checkbox" />
+                    <span>Dolor torácico</span>
+                  </label>
+
+                  <label class="check-chip">
+                    <input id="fever" type="checkbox" />
+                    <span>Fiebre</span>
+                  </label>
+
+                  <label class="check-chip">
+                    <input id="trauma" type="checkbox" />
+                    <span>Trauma</span>
+                  </label>
+                </div>
+              </div>
+
+              <div class="field field-full">
+                <label for="notes">Observaciones</label>
+                <textarea id="notes" rows="4" placeholder="Detalles clínicos relevantes, acompañante, tiempo de evolución, etc."></textarea>
+              </div>
+
+              <div class="action-row field-full">
+                <button class="btn btn-warning" id="inferBtn" type="button">Inferir prioridad</button>
+                <button class="btn btn-primary" type="submit">Guardar caso</button>
+                <button class="btn btn-ghost" id="resetBtn" type="button">Limpiar</button>
               </div>
             </form>
           </article>
 
-          <aside class="panel suggest-panel reveal">
+          <aside class="panel preview-panel reveal">
             <div class="section-head">
               <div>
                 <p class="eyebrow">Inferencia</p>
-                <h2>Smart Match</h2>
+                <h2>Resultado automático</h2>
               </div>
             </div>
 
-            <div id="suggestionCard" class="suggestion-card empty">
-              Completa los datos para recibir una recomendación automática.
-            </div>
-
-            <div class="mini-note">
-              La recomendación considera capacidad, disponibilidad, equipamiento y compatibilidad con el modo de uso.
+            <div id="inferenceCard" class="inference-card empty">
+              Completa el formulario o pulsa “Inferir prioridad” para ver la clasificación automática.
             </div>
           </aside>
         </section>
       </section>
 
-      <section class="view" id="view-bookings" hidden>
+      <section class="view" id="view-queue" hidden>
         <section class="panel reveal">
           <div class="section-head">
             <div>
-              <p class="eyebrow">Vista 4</p>
-              <h2>Mis reservas</h2>
+              <p class="eyebrow">Pantalla 3</p>
+              <h2>Cola de atención</h2>
+            </div>
+
+            <button class="btn btn-primary nav-btn" type="button" data-view="triage">Nuevo ingreso</button>
+          </div>
+
+          <div class="toolbar">
+            <div class="field">
+              <label for="searchCase">Buscar</label>
+              <input id="searchCase" type="search" placeholder="Nombre o motivo" />
+            </div>
+
+            <div class="field">
+              <label for="filterColor">Color</label>
+              <select id="filterColor">
+                <option value="all">Todos</option>
+                <option value="red">Rojo</option>
+                <option value="yellow">Amarillo</option>
+                <option value="green">Verde</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="filterStatus">Estado</label>
+              <select id="filterStatus">
+                <option value="all">Todos</option>
+                <option value="waiting">Pendiente</option>
+                <option value="in_progress">En atención</option>
+                <option value="attended">Atendido</option>
+              </select>
             </div>
           </div>
 
-          <div id="bookingsList" class="bookings-list"></div>
+          <div id="queueList" class="queue-grid"></div>
         </section>
       </section>
     </main>
   </div>
 
-  <dialog id="spaceDialog" class="space-dialog">
+  <dialog id="detailDialog" class="dialog">
     <article class="dialog-card">
       <div class="section-head">
         <div>
-          <p class="eyebrow">Detalle</p>
-          <h2 id="dialogTitle">Espacio</h2>
+          <p class="eyebrow">Detalle del caso</p>
+          <h2 id="detailTitle">Caso</h2>
         </div>
-        <button id="closeDialogBtn" class="ghost-btn dialog-close" type="button">Cerrar</button>
+        <button class="btn btn-ghost dialog-close" id="closeDialogBtn" type="button">Cerrar</button>
       </div>
 
-      <div id="dialogBody" class="dialog-body"></div>
+      <div id="detailBody" class="detail-grid"></div>
     </article>
   </dialog>
 
   <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
-  <div class="sr-only" id="srStatus" aria-live="polite"></div>
+  <div id="srStatus" class="sr-only" aria-live="polite"></div>
 </body>
 </html>
