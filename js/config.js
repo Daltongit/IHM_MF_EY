@@ -1,3 +1,7 @@
-window.SUPABASE_URL = "https://oycspazetshuloljiwvq.supabase.co";
-window.SUPABASE_ANON_KEY = "sb_publishable_2Yyh3GkNPSBEVmIhSPPq3g_DPyk_iaE";
-window.SUPABASE_TABLE = "tasks_hci";
+window.SUPABASE_URL = "https://gttovykbkktstmdwdkib.supabase.co";
+window.SUPABASE_ANON_KEY = "sb_publishable_HnlxxDQaTItY6iDk2ssxaQ_5WKcwGHq";
+
+window.TABLES = {
+  spaces: "spaces",
+  reservations: "reservations"
+};
