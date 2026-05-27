@@ -110,4 +110,233 @@
 
             <div class="hero-actions">
               <button class="primary-btn nav-button" data-view="reserve" type="button">Crear reserva</button>
-              <button class="ghost-btn
+              <button class="ghost-btn nav-button" data-view="spaces" type="button">Explorar espacios</button>
+            </div>
+          </div>
+
+          <div class="hero-ribbon" id="homeSpotlight"></div>
+        </section>
+
+        <section class="metrics-grid reveal">
+          <article class="metric-card">
+            <span class="metric-card__label">Espacios activos</span>
+            <strong id="metricSpaces">0</strong>
+            <div class="metric-bar"><i id="metricSpacesBar" style="width:0%"></i></div>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-card__label">Reservas próximas</span>
+            <strong id="metricBookings">0</strong>
+            <div class="metric-bar"><i id="metricBookingsBar" style="width:0%"></i></div>
+          </article>
+
+          <article class="metric-card">
+            <span class="metric-card__label">Disponibilidad</span>
+            <strong id="metricAvailability">0%</strong>
+            <div class="metric-bar"><i id="metricAvailabilityBar" style="width:0%"></i></div>
+          </article>
+        </section>
+
+        <section class="insight-grid reveal">
+          <article class="insight-card">
+            <p class="eyebrow">Usabilidad</p>
+            <h3>Navegación clara</h3>
+            <p>La navegación principal usa módulos visibles y un flujo directo entre explorar, reservar y gestionar.</p>
+          </article>
+
+          <article class="insight-card">
+            <p class="eyebrow">Inferencia</p>
+            <h3>Sugerencia automática</h3>
+            <p>El sistema recomienda el espacio más adecuado según tus necesidades reales.</p>
+          </article>
+
+          <article class="insight-card">
+            <p class="eyebrow">Feedback</p>
+            <h3>Respuesta inmediata</h3>
+            <p>Confirmaciones, errores y cambios de estado se muestran al instante.</p>
+          </article>
+        </section>
+      </section>
+
+      <section class="view" id="view-spaces" hidden>
+        <section class="panel reveal">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Vista 2</p>
+              <h2>Explorar espacios</h2>
+            </div>
+            <button class="primary-btn nav-button" data-view="reserve" type="button">Reservar ahora</button>
+          </div>
+
+          <div class="toolbar">
+            <div class="field">
+              <label for="spaceSearch">Buscar</label>
+              <input id="spaceSearch" type="search" placeholder="Buscar por nombre o zona">
+            </div>
+
+            <div class="field">
+              <label for="vibeFilter">Modo</label>
+              <select id="vibeFilter">
+                <option value="all">Todos</option>
+                <option value="Focus">Focus</option>
+                <option value="Meeting">Meeting</option>
+                <option value="Presentation">Presentation</option>
+                <option value="Workshop">Workshop</option>
+              </select>
+            </div>
+
+            <div class="field">
+              <label for="capacityFilter">Capacidad</label>
+              <select id="capacityFilter">
+                <option value="all">Cualquiera</option>
+                <option value="2">Hasta 2</option>
+                <option value="4">Hasta 4</option>
+                <option value="8">Hasta 8</option>
+                <option value="12">Hasta 12</option>
+              </select>
+            </div>
+          </div>
+
+          <div id="spacesGrid" class="spaces-grid"></div>
+        </section>
+      </section>
+
+      <section class="view" id="view-reserve" hidden>
+        <section class="reserve-layout">
+          <article class="panel reveal">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Vista 3</p>
+                <h2>Nueva reserva</h2>
+              </div>
+            </div>
+
+            <form id="reservationForm" class="form-grid" novalidate>
+              <div class="field">
+                <label for="reserverName">Nombre</label>
+                <input id="reserverName" type="text" placeholder="Tu nombre completo">
+                <small class="error-text" id="error-reserverName"></small>
+              </div>
+
+              <div class="field">
+                <label for="purpose">Propósito</label>
+                <input id="purpose" type="text" placeholder="Ej. reunión académica">
+                <small class="error-text" id="error-purpose"></small>
+              </div>
+
+              <div class="field">
+                <label for="attendees">Asistentes</label>
+                <input id="attendees" type="number" min="1" placeholder="Ej. 6">
+                <small class="error-text" id="error-attendees"></small>
+              </div>
+
+              <div class="field">
+                <label for="experienceMode">Modo</label>
+                <select id="experienceMode">
+                  <option value="Focus">Focus</option>
+                  <option value="Meeting">Meeting</option>
+                  <option value="Presentation">Presentation</option>
+                  <option value="Workshop">Workshop</option>
+                </select>
+              </div>
+
+              <div class="field">
+                <label for="bookingDate">Fecha</label>
+                <input id="bookingDate" type="date">
+                <small class="error-text" id="error-bookingDate"></small>
+              </div>
+
+              <div class="field">
+                <label for="startTime">Hora inicio</label>
+                <input id="startTime" type="time">
+                <small class="error-text" id="error-startTime"></small>
+              </div>
+
+              <div class="field">
+                <label for="endTime">Hora fin</label>
+                <input id="endTime" type="time">
+                <small class="error-text" id="error-endTime"></small>
+              </div>
+
+              <div class="field">
+                <label for="spaceSelect">Espacio</label>
+                <select id="spaceSelect"></select>
+                <small class="error-text" id="error-spaceSelect"></small>
+              </div>
+
+              <div class="toggle-group field-full">
+                <label class="toggle-chip">
+                  <input id="needsScreen" type="checkbox">
+                  <span>Pantalla</span>
+                </label>
+
+                <label class="toggle-chip">
+                  <input id="needsVideo" type="checkbox">
+                  <span>Video</span>
+                </label>
+              </div>
+
+              <div class="field field-full">
+                <label for="note">Nota</label>
+                <textarea id="note" rows="4" placeholder="Detalles adicionales"></textarea>
+              </div>
+
+              <div class="form-actions field-full">
+                <button class="primary-btn" type="submit">Confirmar reserva</button>
+                <button class="ghost-btn" id="resetReservationForm" type="button">Limpiar</button>
+              </div>
+            </form>
+          </article>
+
+          <aside class="panel suggest-panel reveal">
+            <div class="section-head">
+              <div>
+                <p class="eyebrow">Inferencia</p>
+                <h2>Smart Match</h2>
+              </div>
+            </div>
+
+            <div id="suggestionCard" class="suggestion-card empty">
+              Completa los datos para recibir una recomendación automática.
+            </div>
+
+            <div class="mini-note">
+              La recomendación considera capacidad, disponibilidad, equipamiento y compatibilidad con el modo de uso.
+            </div>
+          </aside>
+        </section>
+      </section>
+
+      <section class="view" id="view-bookings" hidden>
+        <section class="panel reveal">
+          <div class="section-head">
+            <div>
+              <p class="eyebrow">Vista 4</p>
+              <h2>Mis reservas</h2>
+            </div>
+          </div>
+
+          <div id="bookingsList" class="bookings-list"></div>
+        </section>
+      </section>
+    </main>
+  </div>
+
+  <dialog id="spaceDialog" class="space-dialog">
+    <article class="dialog-card">
+      <div class="section-head">
+        <div>
+          <p class="eyebrow">Detalle</p>
+          <h2 id="dialogTitle">Espacio</h2>
+        </div>
+        <button id="closeDialogBtn" class="ghost-btn dialog-close" type="button">Cerrar</button>
+      </div>
+
+      <div id="dialogBody" class="dialog-body"></div>
+    </article>
+  </dialog>
+
+  <div id="toastRegion" class="toast-region" aria-live="polite" aria-atomic="true"></div>
+  <div class="sr-only" id="srStatus" aria-live="polite"></div>
+</body>
+</html>
